@@ -182,6 +182,21 @@ var friendlyEntities = [
   "Iron Golem"
 ];
 
+var months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
+];
+
 function entityLocation(renderer) {
   var beamRenderer = renderer.createResource("BEAM_RENDERER", "skyhighocs:entity_location");
   var shapeEntityLocation = renderer.createResource("SHAPE", null);
@@ -446,15 +461,22 @@ var charWidths = {
   " ": 4.0,
 }
 
-function text(renderer) {
+function text(renderer, name) {
   var characterModels = [];
   var index = 0;
   /* if (chars.length != charWidths.length) {
     return;
   }; */
+  var texture_name;
+  if (typeof name === "string") {
+    texture_name = name + "_character";
+  } else {
+    texture_name = "character"
+  };
   for (var char in chars) {
+    var character_texture = texture_name + "_" + index.toString();
     var character_model = renderer.createResource("MODEL", "skyhighocs:Character");
-    character_model.texture.set(null, "character_" + index.toString());
+    character_model.texture.set(null, character_texture);
     var character = renderer.createEffect("fiskheroes:model").setModel(character_model);
     character.anchor.set("head");
     character.anchor.ignoreAnchor(true);
@@ -770,6 +792,461 @@ function text(renderer) {
       };
     }
   };
+};
+
+/**
+ * Creates screen element
+ * @param {JSHeroRenderer} renderer - Hero renderer
+ * @param {string} elementName - Name of screen element
+ * @param {string} verticalAlignment - Vertical alignment of element
+ * @param {string} horizontalAlignment - Horizontal alignment of element
+ * @param {number} sizeX - X value of padding
+ * @param {number} sizeY - Y value of padding
+ * @param {number} offsetX - X offset
+ * @param {number} offsetY - Y offset
+ * @param {number} offsetZ - Z offset
+ * @param {object} parentElement - Parent element
+ * @param {object} parentElementAnchor - Anchor point from parent element
+ **/
+function screenElement(renderer, elementName, verticalAlignment, horizontalAlignment, sizeX, sizeY, offsetX, offsetY, offsetZ, parentElement, parentElementAnchor) {
+  var baseX = 0.0;
+  var baseY = 0.0;
+  var baseZ = 0.0;
+  var baseSizeX = 0.0;
+  var baseSizeY = 0.0;
+  var parentX = 0.0;
+  var parentY = 0.0;
+  var parentZ = 0.0;
+  var parentAnchorX = 0.0;
+  var parentAnchorY = 0.0;
+  var sizeCorrectionX = 0.0;
+  var sizeCorrectionY = 0.0;
+  var parentSizeX = 0.0;
+  var parentSizeY = 0.0;
+  var parentScreenElement = null;
+  var parentAnchor = parentElementAnchor;
+  if (typeof parentElement === "object") {
+    parentScreenElement = parentElement;
+  };
+  if (parentScreenElement != null) {
+    parentX = parentScreenElement.x;
+    parentY = parentScreenElement.y;
+    parentZ = parentScreenElement.z;
+    parentSizeX = parentScreenElement.sizeX;
+    parentSizeY = parentScreenElement.sizeY;
+  };
+  if (parentAnchor != null) {
+    switch (parentAnchor.toLowerCase()) {
+      case "topleft":
+        parentAnchorX = parentScreenElement.leftX;
+        parentAnchorY = parentScreenElement.topY;
+        break;
+      case "topcenter":
+        parentAnchorX = parentScreenElement.centerX;
+        parentAnchorY = parentScreenElement.topY;
+        break;
+      case "topright":
+        parentAnchorX = parentScreenElement.rightX;
+        parentAnchorY = parentScreenElement.topY;
+        break;
+      case "centerleft":
+        parentAnchorX = parentScreenElement.leftX;
+        parentAnchorY = parentScreenElement.centerY;
+        break;
+      case "center":
+        parentAnchorX = parentScreenElement.centerX;
+        parentAnchorY = parentScreenElement.centerY;
+        break;
+      case "centerright":
+        parentAnchorX = parentScreenElement.rightX;
+        parentAnchorY = parentScreenElement.centerY;
+        break;
+      case "bottomleft":
+        parentAnchorX = parentScreenElement.leftX;
+        parentAnchorY = parentScreenElement.bottomY;
+        break;
+      case "bottomcenter":
+        parentAnchorX = parentScreenElement.centerX;
+        parentAnchorY = parentScreenElement.bottomY;
+        break;
+      case "bottomright":
+        parentAnchorX = parentScreenElement.rightX;
+        parentAnchorY = parentScreenElement.bottomY;
+        break;
+    };
+  };
+  if (typeof sizeX === "string") {
+    if (sizeX.endsWith("pw")) {
+      var percent = parseFloat(sizeX.split("pw")[0]);
+      baseSizeX = parentSizeX*(percent/100.0);
+    };
+    if (sizeX.endsWith("ph")) {
+      var percent = parseFloat(sizeX.split("ph")[0]);
+      baseSizeX = parentSizeY*(percent/100.0);
+    };
+    if (sizeX.endsWith("pmw")) {
+      var margin = parseFloat(sizeX.split("pmw")[0]);
+      baseSizeX = parentSizeX-margin;
+    };
+    if (sizeX.endsWith("pmh")) {
+      var margin = parseFloat(sizeX.split("pmh")[0]);
+      baseSizeX = parentSizeY-margin;
+    };
+  } else {
+    baseSizeX = sizeX;
+  };
+  if (typeof sizeY === "string") {
+    if (sizeY.endsWith("pw")) {
+      var percent = parseFloat(sizeY.split("pw")[0]);
+      baseSizeY = parentSizeX*(percent/100.0);
+    };
+    if (sizeY.endsWith("ph")) {
+      var percent = parseFloat(sizeY.split("ph")[0]);
+      baseSizeY = parentSizeY*(percent/100.0);
+    };
+    if (sizeY.endsWith("pmw")) {
+      var margin = parseFloat(sizeY.split("pmw")[0]);
+      baseSizeY = parentSizeX-margin;
+    };
+    if (sizeY.endsWith("pmh")) {
+      var margin = parseFloat(sizeY.split("pmh")[0]);
+      baseSizeY = parentSizeY-margin;
+    };
+  } else {
+    baseSizeY = sizeY;
+  };
+  switch (horizontalAlignment.toLowerCase()) {
+    case "center":
+      sizeCorrectionX = 0.0;
+      break;
+    case "left":
+      sizeCorrectionX = 1*(baseSizeX/2);
+      break;
+    case "right":
+      sizeCorrectionX = -1*(baseSizeX/2);
+      break;
+  };
+  switch (verticalAlignment.toLowerCase()) {
+    case "center":
+      sizeCorrectionY = 0.0;
+      break;
+    case "top":
+      sizeCorrectionY = 1*(baseSizeY/2);
+      break;
+    case "bottom":
+      sizeCorrectionY = -1*(baseSizeY/2);
+      break;
+  };
+  var screen_element = renderer.createResource("MODEL", "skyhighocs:Pixel");
+  screen_element.texture.set(null, "screen_" + elementName);
+  var screen_element_model = renderer.createEffect("fiskheroes:model").setModel(screen_element);
+  screen_element_model.anchor.set("head");
+  screen_element_model.anchor.ignoreAnchor(true);
+  screen_element_model.setRotation(0, 0, 0);
+  screen_element_model.setScale(baseSizeX, baseSizeY, 1.0);
+  baseX = offsetX+sizeCorrectionX+parentAnchorX;
+  baseY = offsetY+sizeCorrectionY+parentAnchorY;
+  baseZ = offsetZ+parentZ;
+  screen_element_model.setOffset(baseX, baseY, baseZ);
+  baseZ = offsetZ+parentZ+0.02;
+  var leftXBound = baseX-(baseSizeX/2);
+  var centerX = baseX;
+  var rightXBound = baseX+(baseSizeX/2);
+  var topYBound = baseY-(baseSizeY/2);
+  var centerY = baseY;
+  var bottomYBound = baseY+(baseSizeY/2);
+  return {
+    model: screen_element_model,
+    x: baseX,
+    y: baseY,
+    z: baseZ,
+    sizeX: baseSizeX,
+    sizeY: baseSizeY,
+    leftX: leftXBound,
+    centerX: centerX,
+    rightX: rightXBound,
+    topY: topYBound,
+    centerY: centerY,
+    bottomY: bottomYBound,
+    render: (isFirstPersonArm) => {
+      if (isFirstPersonArm) {
+        screen_element_model.render();
+      };
+    }
+  };
+};
+
+/**
+ * Creates screen element
+ * @param {JSHeroRenderer} renderer - Hero renderer
+ * @param {string} elementName - Name of screen element
+ * @param {string} verticalAlignment - Vertical alignment of element
+ * @param {string} horizontalAlignment - Horizontal alignment of element
+ * @param {number} sizeX - X value of padding
+ * @param {number} sizeY - Y value of padding
+ * @param {number} offsetX - X offset
+ * @param {number} offsetY - Y offset
+ * @param {number} offsetZ - Z offset
+ * @param {object} parentElement - Parent element
+ * @param {object} parentElementAnchor - Anchor point from parent element
+ **/
+function screenElementHead(renderer, elementName, verticalAlignment, horizontalAlignment, sizeX, sizeY, offsetX, offsetY, offsetZ, parentElement, parentElementAnchor) {
+  var baseX = 0.0;
+  var baseY = 0.0;
+  var baseZ = 0.0;
+  var baseSizeX = 0.0;
+  var baseSizeY = 0.0;
+  var parentX = 0.0;
+  var parentY = 0.0;
+  var parentZ = 0.0;
+  var parentAnchorX = 0.0;
+  var parentAnchorY = 0.0;
+  var sizeCorrectionX = 0.0;
+  var sizeCorrectionY = 0.0;
+  var parentSizeX = 0.0;
+  var parentSizeY = 0.0;
+  var parentScreenElement = null;
+  var parentAnchor = parentElementAnchor;
+  var flipYAnchor = false;
+  if (typeof parentElement === "object") {
+    parentScreenElement = parentElement;
+  };
+  if (parentScreenElement != null) {
+    parentX = parentScreenElement.x;
+    parentY = parentScreenElement.y;
+    parentZ = parentScreenElement.z;
+    parentSizeX = parentScreenElement.sizeX;
+    parentSizeY = parentScreenElement.sizeY;
+  };
+  if (parentAnchor != null) {
+    switch (parentAnchor.toLowerCase()) {
+      case "topleft":
+        parentAnchorX = parentScreenElement.leftX;
+        parentAnchorY = parentScreenElement.topY;
+        break;
+      case "topcenter":
+        parentAnchorX = parentScreenElement.centerX;
+        parentAnchorY = parentScreenElement.topY;
+        break;
+      case "topright":
+        parentAnchorX = parentScreenElement.rightX;
+        parentAnchorY = parentScreenElement.topY;
+        break;
+      case "centerleft":
+        parentAnchorX = parentScreenElement.leftX;
+        parentAnchorY = parentScreenElement.centerY;
+        break;
+      case "center":
+        parentAnchorX = parentScreenElement.centerX;
+        parentAnchorY = parentScreenElement.centerY;
+        break;
+      case "centerright":
+        parentAnchorX = parentScreenElement.rightX;
+        parentAnchorY = parentScreenElement.centerY;
+        break;
+      case "bottomleft":
+        parentAnchorX = parentScreenElement.leftX;
+        parentAnchorY = parentScreenElement.bottomY;
+        break;
+      case "bottomcenter":
+        parentAnchorX = parentScreenElement.centerX;
+        parentAnchorY = parentScreenElement.bottomY;
+        break;
+      case "bottomright":
+        parentAnchorX = parentScreenElement.rightX;
+        parentAnchorY = parentScreenElement.bottomY;
+        break;
+    };
+  };
+  if (typeof sizeX === "string") {
+    if (sizeX.endsWith("pw")) {
+      var percent = parseFloat(sizeX.split("pw")[0]);
+      baseSizeX = parentSizeX*(percent/100.0);
+    };
+    if (sizeX.endsWith("ph")) {
+      var percent = parseFloat(sizeX.split("ph")[0]);
+      baseSizeX = parentSizeY*(percent/100.0);
+    };
+    if (sizeX.endsWith("pmw")) {
+      var margin = parseFloat(sizeX.split("pmw")[0]);
+      baseSizeX = parentSizeX-margin;
+    };
+    if (sizeX.endsWith("pmh")) {
+      var margin = parseFloat(sizeX.split("pmh")[0]);
+      baseSizeX = parentSizeY-margin;
+    };
+  } else {
+    baseSizeX = sizeX;
+  };
+  if (typeof sizeY === "string") {
+    if (sizeY.endsWith("pw")) {
+      var percent = parseFloat(sizeY.split("pw")[0]);
+      baseSizeY = parentSizeX*(percent/100.0);
+    };
+    if (sizeY.endsWith("ph")) {
+      var percent = parseFloat(sizeY.split("ph")[0]);
+      baseSizeY = parentSizeY*(percent/100.0);
+    };
+    if (sizeY.endsWith("pmw")) {
+      var margin = parseFloat(sizeY.split("pmw")[0]);
+      baseSizeY = parentSizeX-margin;
+    };
+    if (sizeY.endsWith("pmh")) {
+      var margin = parseFloat(sizeY.split("pmh")[0]);
+      baseSizeY = parentSizeY-margin;
+    };
+  } else {
+    baseSizeY = sizeY;
+  };
+  baseSizeX = baseSizeX/8.0;
+  baseSizeY = baseSizeY/8.0;
+  switch (horizontalAlignment.toLowerCase()) {
+    case "center":
+      sizeCorrectionX = 0.0;
+      break;
+    case "left":
+      sizeCorrectionX = 1*(baseSizeX/2);
+      break;
+    case "right":
+      sizeCorrectionX = -1*(baseSizeX/2);
+      break;
+  };
+  switch (verticalAlignment.toLowerCase()) {
+    case "center":
+      sizeCorrectionY = 0.0;
+      break;
+    case "top":
+      sizeCorrectionY = 1*(baseSizeY/2);
+      break;
+    case "bottom":
+      sizeCorrectionY = -1*(baseSizeY/2);
+      break;
+  };
+  var screen_element = renderer.createResource("MODEL", "skyhighocs:PixelHead");
+  screen_element.texture.set(null, "head_" + elementName);
+  var screen_element_model = renderer.createEffect("fiskheroes:model").setModel(screen_element);
+  screen_element_model.anchor.set("head");
+  screen_element_model.anchor.ignoreAnchor(true);
+  screen_element_model.setRotation(0, 0, 0);
+  screen_element_model.setScale(baseSizeX, baseSizeY, 1.0);
+  baseX = offsetX+sizeCorrectionX+parentAnchorX;
+  baseY = offsetY+sizeCorrectionY+parentAnchorY;
+  baseZ = offsetZ+parentZ;
+  screen_element_model.setOffset(baseX, baseY, baseZ);
+  baseZ = offsetZ+parentZ+0.02;
+  var leftXBound = baseX-(baseSizeX/2);
+  var centerX = baseX;
+  var rightXBound = baseX+(baseSizeX/2);
+  var topYBound = baseY-(baseSizeY/2);
+  var centerY = baseY;
+  var bottomYBound = baseY+(baseSizeY/2);
+  return {
+    model: screen_element_model,
+    x: baseX,
+    y: baseY,
+    z: baseZ,
+    sizeX: baseSizeX,
+    sizeY: baseSizeY,
+    leftX: leftXBound,
+    centerX: centerX,
+    rightX: rightXBound,
+    topY: topYBound,
+    centerY: centerY,
+    bottomY: bottomYBound,
+    render: (isFirstPersonArm) => {
+      if (isFirstPersonArm) {
+        screen_element_model.render();
+      };
+    }
+  };
+};
+
+/**
+ * Creates vertical scroll bar
+ * @param {JSHeroRenderer} renderer - Hero renderer
+ * @param {string} elementName - Name of screen element
+ * @param {number} paddingX - X value of padding
+ * @param {number} paddingY - Y value of padding
+ * @param {number} sizeX - X value of size
+ * @param {number} sizeY - Y value of size
+ * @param {number} offsetX - X offset
+ * @param {number} offsetY - Y offset
+ * @param {number} offsetZ - Z offset
+ **/
+function screenVerticalScrollBar(renderer, elementName, paddingX, paddingY, sizeX, sizeY, offsetX, offsetY, offsetZ) {
+  var originalBarSizeX = sizeX-paddingX;
+  var originalBarSizeY = sizeY-paddingY;
+  var scrollBarBase = screenElement(renderer, elementName, "center", "center", sizeX, sizeY, offsetX, offsetY, offsetZ);
+  var scrollBar = screenElement(renderer, elementName+"_bar", "center", "center", sizeX-paddingX, sizeY-paddingY, 0.0, 0.0, 0.0, scrollBarBase, "center");
+  var originalBarX = scrollBar.x;
+  var originalBarY = scrollBar.y;
+  var originalBarTop = scrollBar.topY;
+  var originalBarBottom = scrollBar.bottomY;
+  return {
+    baseModel: scrollBarBase.model,
+    baseModelX: scrollBarBase.x,
+    baseModelY: scrollBarBase.y,
+    baseModelZ: scrollBarBase.z,
+    baseModelSizeX: scrollBarBase.sizeX,
+    baseModelSizeY: scrollBarBase.sizeY,
+    barModel: scrollBar.model,
+    barModelX: scrollBar.x,
+    barModelY: scrollBar.y,
+    barModelZ: scrollBar.z,
+    barModelSizeX: scrollBar.sizeX,
+    barModelSizeY: scrollBar.sizeY,
+    render: (isFirstPersonArm, selected, total) => {
+      if (isFirstPersonArm) {
+        var selectedValue = selected;
+        var totalValue = ((total == 0) ? 1 : total);
+        var barSize = originalBarSizeY/totalValue;
+        var barTopLimit = originalBarTop-(paddingY/2)+(barSize/2);
+        var barBottomLimit = originalBarBottom+(paddingY/2)-(barSize/2);
+        var barSpace = Math.abs(barTopLimit-barBottomLimit);
+        scrollBarBase.render(isFirstPersonArm);
+        scrollBar.model.setScale(originalBarSizeX, barSize, 1.0);
+        var progress = (barTopLimit)+(barSpace*(selectedValue/totalValue));
+        scrollBar.model.setOffset(originalBarX, progress, scrollBar.z);
+        scrollBar.render(isFirstPersonArm);
+      };
+    }
+  };
+};
+
+function screenSelecter(renderer, elementName, parentElement, thickness) {
+  var topLeftBase = screenElement(renderer, elementName, "center", "center", thickness, thickness, 0.0, 0.0, 0.0, parentElement, "topLeft");
+  var topLeftLeft = screenElement(renderer, elementName, "top", "center", thickness, 5.0, 0.0, 0.0, 0.0, topLeftBase, "bottomCenter");
+  var topLeftTop = screenElement(renderer, elementName, "center", "left", 5.0, thickness, 0.0, 0.0, 0.0, topLeftBase, "centerRight");
+  
+  var topRightBase = screenElement(renderer, elementName, "center", "center", thickness, thickness, 0.0, 0.0, 0.0, parentElement, "topRight");
+  var topRightRight = screenElement(renderer, elementName, "top", "center", thickness, 5.0, 0.0, 0.0, 0.0, topRightBase, "bottomCenter");
+  var topRightTop = screenElement(renderer, elementName, "center", "right", 5.0, thickness, 0.0, 0.0, 0.0, topRightBase, "centerLeft");
+
+  var bottomLeftBase = screenElement(renderer, elementName, "center", "center", thickness, thickness, 0.0, 0.0, 0.0, parentElement, "bottomLeft");
+  var bottomLeftLeft = screenElement(renderer, elementName, "bottom", "center", thickness, 5.0, 0.0, 0.0, 0.0, bottomLeftBase, "topCenter");
+  var bottomLeftBottom = screenElement(renderer, elementName, "center", "left", 5.0, thickness, 0.0, 0.0, 0.0, bottomLeftBase, "centerRight");
+  
+  var bottomRightBase = screenElement(renderer, elementName, "center", "center", thickness, thickness, 0.0, 0.0, 0.0, parentElement, "bottomRight");
+  var bottomRightRight = screenElement(renderer, elementName, "bottom", "center", thickness, 5.0, 0.0, 0.0, 0.0, bottomRightBase, "topCenter");
+  var bottomRightBottom = screenElement(renderer, elementName, "center", "right", 5.0, thickness, 0.0, 0.0, 0.0, bottomRightBase, "centerLeft");
+  return {
+    render: (isFirstPersonArm) => {
+      if (isFirstPersonArm) {
+        topLeftBase.render(isFirstPersonArm);
+        topLeftLeft.render(isFirstPersonArm);
+        topLeftTop.render(isFirstPersonArm);
+        topRightBase.render(isFirstPersonArm);
+        topRightRight.render(isFirstPersonArm);
+        topRightTop.render(isFirstPersonArm);
+        bottomLeftBase.render(isFirstPersonArm);
+        bottomLeftLeft.render(isFirstPersonArm);
+        bottomLeftBottom.render(isFirstPersonArm);
+        bottomRightBase.render(isFirstPersonArm);
+        bottomRightRight.render(isFirstPersonArm);
+        bottomRightBottom.render(isFirstPersonArm);
+      };
+    }
+  }
 };
 
 function entitySuitName(entity) {

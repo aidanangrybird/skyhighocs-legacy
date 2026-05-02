@@ -26,6 +26,67 @@ function initModule(system) {
     moduleMessageName: "Settings",
     type: 1,
     command: "set",
+    transerMenues: {
+      "settings": {
+        parent: "main",
+        buttons: {
+          "settings_select_1": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test settings select 1");
+              },
+              downAction: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test settings select 1");
+              }
+            }
+          },
+          "settings_select_2": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test settings select 2");
+              }
+            }
+          },
+          "settings_select_3": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test settings select 3");
+              }
+            }
+          }
+        }
+      }
+    },
+    transerButton: {
+      borderingButtons: {
+        top: "main_groups",
+        left: "main_waypoints",
+        right: "main_BrotherBand",
+      },
+      properties: {
+        action: (entity, manager) => {
+          manager.setData(entity, "skyhighocs:dyn/current_menu", "settings");
+        }
+      }
+    },
     helpMessage: "<n>!set <nh>-<n> Settings",
     commandHandler: function (entity, manager, argList) {
       if (argList.length > 1 && argList.length < 4) {

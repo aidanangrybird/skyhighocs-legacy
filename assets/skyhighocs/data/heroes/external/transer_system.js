@@ -3,6 +3,8 @@
 
 regex = /((<ob>))|(<n>)|(<nh>)|(<s>)|(<sh>)|(<e>)|(<eh>)|(<r>)|(<dragon>)|(<leo>)|(<pegasus>)/gm;
 
+variableRegex = /[\s-]/gm;
+
 var formatting = {
   "<ob>": "\u00A7k",
   "<n>": "\u00A7b",
@@ -128,6 +130,19 @@ function getWaveColor(entity) {
 function getAssignedSatellite(entity) {
   return entity.getData("skyhighocs:dyn/satellite");
 };
+/**
+ * Checks if player can use transer
+ * @param {JSEntity} entity - Entity getting checked
+ * @returns If transer can be used
+ **/
+function canUseTranser(entity) {
+  var variable = entity.getData("skyhighocs:dyn/em_being_variable");
+  if (variable != null) {
+    return ((entity.getData("skyhighocs:dyn/wave_changing_timer") == 0) ? true : entity.getData("skyhighocs:dyn/" + variable + "_timer") == 1);
+  } else {
+    return true;
+  };
+};
 
 /**
  * Checks if an entity has a device that is a computer
@@ -155,6 +170,19 @@ function getSystemColor(entity) {
 function formatSystem(input) {
   output = input.replace(regex, function(thing) {
     return formatting[thing];
+  });
+  return output;
+};
+
+/**
+ * Formats EM Being name to variable format
+ * @param {string} input - Name to format
+ * @returns Formatted name
+ **/
+function formatEMBeing(input) {
+  input = input.toLowerCase();
+  output = input.replace(variableRegex, function(thing) {
+    return "_";
   });
   return output;
 };
@@ -444,6 +472,49 @@ function basicTierOverride(entity) {
   return 0;
 };
 
+function addButtonToMenu(menuArray, button, buttonID) {
+  var location = button.location;
+  var locationX = location[0];
+  var locationY = location[1];
+  if ((menuArray.length-1) < locationY) {
+    var rowArray = [];
+    rowArray.splice(locationX, 0, buttonID);
+    menuArray.splice(locationY, 0, rowArray);
+  } else {
+    var rowArray = menuArray[locationY];
+    if ((rowArray.length-1) < locationX) {
+      rowArray.push(buttonID);
+    } else {
+      rowArray.splice(locationX, 0, buttonID);
+      menuArray[locationY] = rowArray;
+    };
+  };
+};
+
+function printMenuArray(menuArray) {
+  var messages = [];
+  var rowNum = 0;
+  menuArray.forEach(row => {
+    var rowMessage = "";
+    row.forEach(element => {
+      rowMessage = rowMessage + "\"" + element + "\",";
+    });
+    messages.push("Row " + rowNum + ": " + rowMessage);
+    rowNum = rowNum + 1;
+  });
+  messages.forEach(message => {
+    logMessage(message);
+  });
+};
+
+function setActiveButton(entity, manager, menuButtons) {
+  var x = entity.getData("skyhighocs:dyn/menu_x");
+  var y = entity.getData("skyhighocs:dyn/menu_y");
+  var row = menuButtons[y];
+  var button = row[x];
+  manager.setData(entity, "skyhighocs:dyn/selected_button", button);
+};
+
 /**
  * Initializes transer system
  * @param {object} moduleList - Transer system modules
@@ -482,6 +553,16 @@ function initSystem(moduleList, transerName, satellite) {
   var onInitSystemIndexes = [];
   /** @var messagingIndexes - Indexes of messaging handlers */
   var messagingIndexes = [];
+  /** @var buttonBorders - Button borders */
+  var buttonBorders = [];
+  /** @var menuIDs - Menu IDs */
+  var menuIDs = [];
+  /** @var parentMenuIDs - Parent menu IDs */
+  var parentMenuIDs = [];
+  /** @var buttonIDs - Button IDs */
+  var buttonIDs = [];
+  /** @var buttonProperties - Button properties */
+  var buttonProperties = [];
   /** @var chatModes - Chat modes */
   var chatModes = [];
   /** @var waveIndex - Wave calling index */
@@ -533,6 +614,32 @@ function initSystem(moduleList, transerName, satellite) {
                 onInitSystemIndexes.push(modules.length-1);
                 logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onInitSystem\"!");
               };
+              if (moduleInit.hasOwnProperty("transerButton")) {
+                var button = moduleInit.transerButton;
+                buttonIDs.push("main_" + moduleInit.name);
+                buttonProperties.push(button.properties);
+                buttonBorders.push(button.borderingButtons);
+                logMessage("Added button \"" + "main_" + moduleInit.name + "\" to menu \"main\"!");
+              };
+              if (moduleInit.hasOwnProperty("transerMenues")) {
+                var menuList = moduleInit.transerMenues;
+                var menuIDList = Object.keys(menuList);
+                menuIDList.forEach(menuID => {
+                  logMessage("Creating menu: " + menuID);
+                  menuIDs.push(menuID);
+                  var menu = menuList[menuID];
+                  parentMenuIDs.push(menu.parent);
+                  var buttons = menu.buttons;
+                  var buttonIDList = Object.keys(buttons);
+                  buttonIDList.forEach(buttonID => {
+                    var button = buttons[buttonID];
+                    buttonIDs.push(buttonID);
+                    buttonProperties.push(button.properties);
+                    buttonBorders.push(button.borderingButtons);
+                    logMessage("Added button \"" + buttonID + "\" to menu \"" + menuID + "\"!");
+                  });
+                });
+              };
             };
             break;
           case 2:
@@ -557,6 +664,32 @@ function initSystem(moduleList, transerName, satellite) {
               if (moduleInit.hasOwnProperty("onInitSystem")) {
                 onInitSystemIndexes.push(modules.length-1);
                 logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onInitSystem\"!");
+              };
+              if (moduleInit.hasOwnProperty("transerButton")) {
+                var button = moduleInit.transerButton;
+                buttonIDs.push("main_" + moduleInit.name);
+                buttonProperties.push(button.properties);
+                buttonBorders.push(button.borderingButtons);
+                logMessage("Added button \"" + "main_" + moduleInit.name + "\" to menu \"main\"!");
+              };
+              if (moduleInit.hasOwnProperty("transerMenues")) {
+                var menuList = moduleInit.transerMenues;
+                var menuIDList = Object.keys(menuList);
+                menuIDList.forEach(menuID => {
+                  logMessage("Creating menu: " + menuID);
+                  menuIDs.push(menuID);
+                  var menu = menuList[menuID];
+                  parentMenuIDs.push(menu.parent);
+                  var buttons = menu.buttons;
+                  var buttonIDList = Object.keys(buttons);
+                  buttonIDList.forEach(buttonID => {
+                    var button = buttons[buttonID];
+                    buttonIDs.push(buttonID);
+                    buttonProperties.push(button.properties);
+                    buttonBorders.push(button.borderingButtons);
+                    logMessage("Added button \"" + buttonID + "\" to menu \"" + menuID + "\"!");
+                  });
+                });
               };
             };
             break;
@@ -584,6 +717,32 @@ function initSystem(moduleList, transerName, satellite) {
               if (moduleInit.hasOwnProperty("onInitSystem")) {
                 onInitSystemIndexes.push(modules.length-1);
                 logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onInitSystem\"!");
+              };
+              if (moduleInit.hasOwnProperty("transerButton")) {
+                var button = moduleInit.transerButton;
+                buttonIDs.push("main_" + moduleInit.name);
+                buttonProperties.push(button.properties);
+                buttonBorders.push(button.borderingButtons);
+                logMessage("Added button \"" + "main_" + moduleInit.name + "\" to menu \"main\"!");
+              };
+              if (moduleInit.hasOwnProperty("transerMenues")) {
+                var menuList = moduleInit.transerMenues;
+                var menuIDList = Object.keys(menuList);
+                menuIDList.forEach(menuID => {
+                  logMessage("Creating menu: " + menuID);
+                  menuIDs.push(menuID);
+                  var menu = menuList[menuID];
+                  parentMenuIDs.push(menu.parent);
+                  var buttons = menu.buttons;
+                  var buttonIDList = Object.keys(buttons);
+                  buttonIDList.forEach(buttonID => {
+                    var button = buttons[buttonID];
+                    buttonIDs.push(buttonID);
+                    buttonProperties.push(button.properties);
+                    buttonBorders.push(button.borderingButtons);
+                    logMessage("Added button \"" + buttonID + "\" to menu \"" + menuID + "\"!");
+                  });
+                });
               };
             };
             break;
@@ -684,6 +843,8 @@ function initSystem(moduleList, transerName, satellite) {
       logMessage("Module at position " + moduleList.indexOf(module) + " cannot be initialized!");
     };
   });
+  menuIDs.push("main");
+  parentMenuIDs.push("main");
   logMessage("Successfully initialized " + modules.length + " out of " + ((moduleList.length > 1) ? moduleList.length + " modules" : moduleList.length + " module") + " on transer " + transerName + "!");
   function switchChatModes(entity, manager, mode) {
     var nbt = mainNBT(entity);
@@ -728,6 +889,45 @@ function initSystem(moduleList, transerName, satellite) {
     systemMessage(entity, "<n>Your current location is<nh> " + entity.posX().toFixed(0) + "<n>, <nh>" + entity.posY().toFixed(0) + "<n>, <nh>" + entity.posZ().toFixed(0));
     systemMessage(entity, "<n>You are in <nh>" + entity.world().getLocation(entity.pos()).biome() + " <n>biome");
     systemMessage(entity, "<n>Do <nh>!help<n> for available commands!");
+  };
+  function confirmAction(entity, manager) {
+    var selectedButton = entity.getData("skyhighocs:dyn/selected_button");
+    var buttonIndex = buttonIDs.indexOf(selectedButton);
+    if (buttonIndex > -1) {
+      var properties = buttonProperties[buttonIndex];
+      if (properties.hasOwnProperty("action")) {
+        properties.action(entity, manager);
+      };
+    };
+  };
+  function backAction(entity, manager) {
+    var currentMenu = entity.getData("skyhighocs:dyn/current_menu");
+    var menuIndex = menuIDs.indexOf(currentMenu);
+    if (menuIndex > -1) {
+      var newMenu = parentMenuIDs[menuIndex];
+      manager.setData(entity, "skyhighocs:dyn/current_menu", newMenu);
+    };
+  };
+  function hasTextAction(entity, manager) {
+    var selectedButton = entity.getData("skyhighocs:dyn/selected_button");
+    var buttonIndex = buttonIDs.indexOf(selectedButton);
+    if (buttonIndex > -1) {
+      var properties = buttonProperties[buttonIndex];
+      if (properties.hasOwnProperty("textAction")) {
+        return true;
+      };
+    };
+    return false;
+  };
+  function textAction(entity, manager) {
+    var selectedButton = entity.getData("skyhighocs:dyn/selected_button");
+    var buttonIndex = buttonIDs.indexOf(selectedButton);
+    if (buttonIndex > -1) {
+      var properties = buttonProperties[buttonIndex];
+      if (properties.hasOwnProperty("textAction")) {
+        properties.textAction(entity, manager);
+      };
+    };
   };
   return {
     /**
@@ -774,7 +974,16 @@ function initSystem(moduleList, transerName, satellite) {
      * @param {JSHero} hero - Required
      **/
     keyBinds: (hero) => {
-      hero.addKeyBind("SHAPE_SHIFT", "Send message/Enter command", 4);
+      hero.addKeyBind("TRANSER", "Open/Close Transer", 4);
+      hero.addKeyBindFunc("CONFIRM", (entity, manager) => {
+        confirmAction(entity, manager);
+        return true;
+      }, "Confirm", 1);
+      hero.addKeyBindFunc("BACK", (entity, manager) => {
+        backAction(entity, manager);
+        return true;
+      }, "Back", 3);
+      hero.addKeyBind("SHAPE_SHIFT", "Send message/Enter command", 2);
     },
     setKeyBind: (entity, keyBind) => {
       switch (keyBind) {
@@ -873,7 +1082,7 @@ function initSystem(moduleList, transerName, satellite) {
      * @param {string} modifier - Required
      **/
     isModifierEnabled: function (entity, modifier) {
-      if (modifier.name() == "fiskheroes:shape_shifting") {
+      if (modifier.name() == "fiskheroes:shape_shifting" || modifier.name() == "fiskheroes:transformation") {
         return true;
       } else {
         return ((emBeingIndex == -1) ? false : ((entity.getData("skyhighocs:dyn/em_being") != emBeing) ? false : modules[emBeingIndex].isModifierEnabled(entity, modifier))) || ((waveChangeIndex == -1) ? false : (((entity.getDataOrDefault("skyhighocs:dyn/wave_changing_timer", 0.0) < 1) || (entity.getData("skyhighocs:dyn/em_being") != emBeing)) ? false : modules[waveChangeIndex].isModifierEnabled(entity, modifier)));
@@ -888,7 +1097,7 @@ function initSystem(moduleList, transerName, satellite) {
       var nbt = mainNBT(entity);
       if (!entity.getDataOrDefault("skyhighocs:dyn/system_init", true)) {
         assignTranser(entity, manager, assignedSatellite);
-        status(entity);
+        //status(entity);
         if (human != null) {
           var hexColor = hexColors[human];
           manager.setString(nbt, "hudColorSkyHigh", hexColor);
@@ -902,6 +1111,7 @@ function initSystem(moduleList, transerName, satellite) {
           manager.setString(nbt, "emBeing", "");
         };
         manager.setData(entity, "skyhighocs:dyn/em_being", nbt.getString("emBeing"));
+        manager.setData(entity, "skyhighocs:dyn/em_being_variable", formatEMBeing(nbt.getString("emBeing")));
         //
         manager.setString(nbt, "compatibleHuman", human);
         manager.setData(entity, "skyhighocs:dyn/compatible_human", nbt.getString("compatibleHuman"));
@@ -998,20 +1208,24 @@ function initSystem(moduleList, transerName, satellite) {
                   break;
               };
             } else {
-              var name = null;
-              if ((typeof waveChangeIndex === "undefined") ? false : waveChangeIndex > -1) {
-                if (entity.getData("skyhighocs:dyn/wave_changing_timer") == 1) {
-                  name = waveColor+waveChange+"\u00A7r";
-                } else {
-                  name = human;
-                };
+              if (hasTextAction(entity, manager)) {
+                textAction(entity, manager);
               } else {
-                name = entity.getName();
-              };
-              var chatMode = chatModes.indexOf(nbt.getString("chatMode"));
-              if (chatMode > -1) {
-                var chatModule = modules[messagingIndexes[chatMode]];
-                chatModule.messageHandler(entity, name, 32);
+                var name = null;
+                if ((typeof waveChangeIndex === "undefined") ? false : waveChangeIndex > -1) {
+                  if (entity.getData("skyhighocs:dyn/wave_changing_timer") == 1) {
+                    name = waveColor+waveChange+"\u00A7r";
+                  } else {
+                    name = human;
+                  };
+                } else {
+                  name = entity.getName();
+                };
+                var chatMode = chatModes.indexOf(nbt.getString("chatMode"));
+                if (chatMode > -1) {
+                  var chatModule = modules[messagingIndexes[chatMode]];
+                  chatModule.messageHandler(entity, name, 32);
+                };
               };
             };
           };
@@ -1026,6 +1240,56 @@ function initSystem(moduleList, transerName, satellite) {
         };
         if (typeof waveChange === "string" && entity.getData("skyhighocs:dyn/wave_changing_timer") == 1) {
           manager.setData(entity, "fiskheroes:disguise", waveChange);
+        };
+      };
+      if (entity.getData("skyhighocs:dyn/transer")) {
+        syncMotion(entity, manager);
+        var motion_x = entity.getData("skyhighocs:dyn/motion_x");
+        var motion_z = entity.getData("skyhighocs:dyn/motion_z");
+        var yaw = (entity.rotation().y()/180)*Math.PI;
+        var cosa = Math.cos(yaw);
+        var sina = Math.sin(yaw);
+        var strafe = (motion_x*cosa) + (motion_z*sina);
+        var forward = (motion_z*cosa) - (motion_x*sina);
+        var positive_threshold = 0.015;
+        var negative_threshold = -0.015;
+        manager.incrementData(entity, "skyhighocs:dyn/button_cooldown", 6, 0, entity.getData("skyhighocs:dyn/button_coolingdown"));
+        if (entity.getData("skyhighocs:dyn/button_cooldown") == 1) {
+          manager.setData(entity, "skyhighocs:dyn/button_coolingdown", false);
+        };
+        if (entity.getData("skyhighocs:dyn/button_cooldown") == 0) {
+          var buttonIndex = buttonIDs.indexOf(entity.getData("skyhighocs:dyn/selected_button"));
+          if (buttonIndex > -1) {
+            var borderingButtons = buttonBorders[buttonIndex];
+            //Up
+            if (forward < negative_threshold) {
+              if (borderingButtons.hasOwnProperty("top")) {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", borderingButtons["top"]);
+              };
+              manager.setData(entity, "skyhighocs:dyn/button_coolingdown", true);
+            };
+            //Down
+            if (forward > positive_threshold) {
+              if (borderingButtons.hasOwnProperty("bottom")) {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", borderingButtons["bottom"]);
+              };
+              manager.setData(entity, "skyhighocs:dyn/button_coolingdown", true);
+            };
+            //Left
+            if (strafe < negative_threshold) {
+              if (borderingButtons.hasOwnProperty("left")) {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", borderingButtons["left"]);
+              };
+              manager.setData(entity, "skyhighocs:dyn/button_coolingdown", true);
+            };
+            //Right
+            if (strafe > positive_threshold) {
+              if (borderingButtons.hasOwnProperty("right")) {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", borderingButtons["right"]);
+              };
+              manager.setData(entity, "skyhighocs:dyn/button_coolingdown", true);
+            };
+          };
         };
       };
     },
@@ -1048,4 +1312,45 @@ function initSystem(moduleList, transerName, satellite) {
       };
     }
   };
+};
+
+//Using this for testing for current
+function clean(value) {
+  return Math.abs(value) < 0.000015 ? 0 : value;
+};
+
+function syncMotionX(entity, manager) {
+  if (PackLoader.getSide() == "CLIENT") {
+    return;
+  };
+  var currentPos = entity.posX();
+  manager.setDataWithNotify(entity, "skyhighocs:dyn/motion_x", clean(entity.getData("skyhighocs:dyn/position_x") - currentPos));
+  manager.setDataWithNotify(entity, "skyhighocs:dyn/position_x", currentPos);
+};
+
+function syncMotionY(entity, manager) {
+  if (PackLoader.getSide() == "CLIENT") {
+    return;
+  };
+  var currentPos = entity.posY();
+  manager.setDataWithNotify(entity, "skyhighocs:dyn/motion_y", clean(entity.getData("skyhighocs:dyn/position_y") - currentPos));
+  manager.setDataWithNotify(entity, "skyhighocs:dyn/position_y", currentPos);
+};
+
+function syncMotionZ(entity, manager) {
+  if (PackLoader.getSide() == "CLIENT") {
+    return;
+  };
+  var currentPos = entity.posZ();
+  manager.setDataWithNotify(entity, "skyhighocs:dyn/motion_z", clean(entity.getData("skyhighocs:dyn/position_z") - currentPos));
+  manager.setDataWithNotify(entity, "skyhighocs:dyn/position_z", currentPos);
+};
+
+function syncMotion(entity, manager) {
+  if (PackLoader.getSide() == "CLIENT") {
+    return;
+  };
+  syncMotionX(entity, manager);
+  syncMotionY(entity, manager);
+  syncMotionZ(entity, manager);
 };

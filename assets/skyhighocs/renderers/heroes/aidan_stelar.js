@@ -1,6 +1,16 @@
 extend("skyhighocs:base_stelar");
 
 loadTextures({
+  "screen_border": "skyhighocs:transer/pegasus_border",
+  "screen_off_white": "skyhighocs:transer/pegasus_off_white",
+  "screen_color_1": "skyhighocs:transer/pegasus_color_1",
+  "screen_color_2": "skyhighocs:transer/pegasus_color_2",
+  "screen_color_3": "skyhighocs:transer/pegasus_color_3",
+  "screen_text_box": "skyhighocs:transer/pegasus_text_box",
+  "screen_profile": "skyhighocs:transer/pegasus_profile",
+  "screen_selected": "skyhighocs:transer/pegasus_selected",
+  "head_human": "skyhighocs:transer/aidan_stelar_head",
+  "head_transformed": "skyhighocs:transer/squall_vortex_head",
   "transer": "skyhighocs:aidan/aidan_stelar_transer.tx.json",
   "transer_wave_change": "skyhighocs:aidan/aidan_stelar_transer_wave_change.tx.json",
   "visualizer": "skyhighocs:aidan/aidan_stelar_visualizer.tx.json",

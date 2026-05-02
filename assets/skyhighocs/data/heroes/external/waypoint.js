@@ -147,6 +147,107 @@ function initModule(system) {
     moduleMessageName: "Waypoints",
     type: 1,
     command: "wp",
+    transerMenues: {
+      "waypoint_editing": {
+        parent: "waypoints",
+        buttons: {
+          "waypoints_delete": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test waypoints delete");
+              }
+            }
+          },
+          "waypoints_edit": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test waypoints select");
+              }
+            }
+          }
+        }
+      },
+      "waypoints": {
+        parent: "main",
+        buttons: {
+          "waypoints_add": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test waypoints add");
+              }
+            }
+          },
+          "waypoints_select_1": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test waypoints select 1");
+              }
+            }
+          },
+          "waypoints_select_2": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test waypoints select 2");
+              }
+            }
+          },
+          "waypoints_select_3": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test waypoints select 3");
+              }
+            }
+          }
+        }
+      }
+    },
+    transerButton: {
+      borderingButtons: {
+        top: "main_contacts",
+        right: "main_settings",
+      },
+      properties: {
+        action: (entity, manager) => {
+          manager.setData(entity, "skyhighocs:dyn/current_menu", "waypoints");
+        }
+      }
+    },
     helpMessage: "<n>!wp <nh>-<n> Waypoints",
     disabledMessage: "<e>Module <eh>waypoints<e> is disabled!",
     commandHandler: function (entity, manager, argList) {

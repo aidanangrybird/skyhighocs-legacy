@@ -181,6 +181,134 @@ function initModule(system) {
     moduleMessageName: "Groups",
     type: 1,
     command: "g",
+    transerMenues: {
+      "group_editing": {
+        parent: "groups",
+        buttons: {
+          "groups_delete": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test groups delete");
+              }
+            }
+          },
+          "groups_edit": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test groups select");
+              }
+            }
+          },
+          "groups_add_member": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test groups add member");
+              }
+            }
+          },
+          "groups_rem_member": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test groups rem member");
+              }
+            }
+          }
+        }
+      },
+      "groups": {
+        parent: "main",
+        buttons: {
+          "groups_add": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test groups add");
+              }
+            }
+          },
+          "groups_select_1": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test groups select 1");
+              }
+            }
+          },
+          "groups_select_2": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test groups select 2");
+              }
+            }
+          },
+          "groups_select_3": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test groups select 3");
+              }
+            }
+          }
+        }
+      }
+    },
+    transerButton: {
+      borderingButtons: {
+        bottom: "main_settings",
+        left: "main_contacts",
+        right: "main_BrotherBand",
+      },
+      properties: {
+        action: (entity, manager) => {
+          manager.setData(entity, "skyhighocs:dyn/current_menu", "groups");
+        }
+      }
+    },
     helpMessage: "<n>!g <nh>-<n> Groups",
     commandHandler: function (entity, manager, argList) {
       if (argList.length > 1 && argList.length < 4) {

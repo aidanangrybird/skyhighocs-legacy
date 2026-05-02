@@ -144,14 +144,6 @@ function initModule(system) {
     isModifierEnabled: function (entity, modifier) {
       var uuid = system.getCompatibleUUID(entity);
       var result = false;
-      if (modifier.name() == "fiskheroes:transformation") {
-        if (modifier.id() == "predation" || modifier.id() == "achlys") {
-          result = entity.getData("skyhighocs:dyn/wave_changing_timer") == 1;
-        };
-        if (modifier.id() == "wave_change") {
-          result = entity.getUUID() == uuid;
-        };
-      };
       if (modifier.name() == "fiskheroes:energy_bolt") {
         result = entity.getData("skyhighocs:dyn/wave_changing_timer") == 1 && entity.getHeldItem().isEmpty() && entity.getData("skyhighocs:dyn/battle_card") == 0;
       };

@@ -85,6 +85,107 @@ function initModule(system) {
     moduleMessageName: "Contacts",
     type: 1,
     command: "c",
+    transerMenues: {
+      "contact_editing": {
+        parent: "contacts",
+        buttons: {
+          "contacts_delete": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test contacts delete");
+              }
+            }
+          },
+          "contacts_edit": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test contacts select");
+              }
+            }
+          }
+        }
+      },
+      "contacts": {
+        parent: "main",
+        buttons: {
+          "contacts_add": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test contacts add");
+              }
+            }
+          },
+          "contacts_select_1": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test contacts select 1");
+              }
+            }
+          },
+          "contacts_select_2": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test contacts select 2");
+              }
+            }
+          },
+          "contacts_select_3": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test contacts select 3");
+              }
+            }
+          }
+        }
+      }
+    },
+    transerButton: {
+      borderingButtons: {
+        bottom: "main_waypoints",
+        right: "main_groups",
+      },
+      properties: {
+        action: (entity, manager) => {
+          manager.setData(entity, "skyhighocs:dyn/current_menu", "contacts");
+        }
+      }
+    },
     helpMessage: "<n>!c <nh>-<n> Contacts",
     commandHandler: function (entity, manager, argList) {
       if (argList.length > 1 && argList.length < 4) {

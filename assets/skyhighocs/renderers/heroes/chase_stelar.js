@@ -1,6 +1,16 @@
 extend("skyhighocs:base_stelar");
 
 loadTextures({
+  "screen_border": "skyhighocs:transer/leo_border",
+  "screen_off_white": "skyhighocs:transer/leo_off_white",
+  "screen_color_1": "skyhighocs:transer/leo_color_1",
+  "screen_color_2": "skyhighocs:transer/leo_color_2",
+  "screen_color_3": "skyhighocs:transer/leo_color_3",
+  "screen_text_box": "skyhighocs:transer/leo_text_box",
+  "screen_profile": "skyhighocs:transer/leo_profile",
+  "screen_selected": "skyhighocs:transer/leo_selected",
+  "head_human": "skyhighocs:transer/chase_stelar_head",
+  "head_transformed": "skyhighocs:transer/pryetak_nebula_head",
   "transer": "skyhighocs:chase/chase_stelar_transer.tx.json",
   "transer_wave_change": "skyhighocs:chase/chase_stelar_transer_wave_change.tx.json",
   "visualizer": "skyhighocs:chase/chase_stelar_visualizer.tx.json",

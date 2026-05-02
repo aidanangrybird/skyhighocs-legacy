@@ -62,23 +62,26 @@ function init(hero) {
     return transerOS.isModifierEnabled(entity, modifier);
   });
   hero.setKeyBindEnabled((entity, keyBind) => {
+    if (keyBind == "TRANSER") {
+      return transer.canUseTranser(entity);
+    };
     if (keyBind == "VISUALIZER_TOGGLE") {
-      return entity.getData("skyhighocs:dyn/wave_changing_timer") == 0 && entity.getUUID() == transer.getCompatibleUUID(entity) && ((entity.getData("skyhighocs:dyn/stelar_clothes") == 3) ? !entity.isSneaking() : true);
+      return !entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/wave_changing_timer") == 0 && entity.getUUID() == transer.getCompatibleUUID(entity) && ((entity.getData("skyhighocs:dyn/stelar_clothes") == 3) ? !entity.isSneaking() : true);
     };
     if (keyBind == "CYCLE_CLOTHES") {
-      return entity.getData("skyhighocs:dyn/wave_changing_timer") == 0 && entity.getUUID() == transer.getCompatibleUUID(entity);
+      return !entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/wave_changing_timer") == 0 && entity.getUUID() == transer.getCompatibleUUID(entity);
     };
     if (keyBind == "HOOD_TOGGLE") {
-      return entity.getData("skyhighocs:dyn/wave_changing_timer") == 0 && entity.getUUID() == transer.getCompatibleUUID(entity) && entity.isSneaking() && entity.getData("skyhighocs:dyn/stelar_clothes") == 3;
-    };
-    if (keyBind == "CYCLE_CHATS") {
-      return !entity.isSneaking() && entity.getData("skyhighocs:dyn/wave_changing_timer") == 0;
-    };
-    if (keyBind == "CYCLE_CHAT_MODES") {
-      return entity.isSneaking() && entity.getData("skyhighocs:dyn/wave_changing_timer") == 0;
+      return !entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/wave_changing_timer") == 0 && entity.getUUID() == transer.getCompatibleUUID(entity) && entity.isSneaking() && entity.getData("skyhighocs:dyn/stelar_clothes") == 3;
     };
     if (keyBind == "SHAPE_SHIFT") {
-      return entity.getData("skyhighocs:dyn/battle_card") == 0 && ((entity.getData("skyhighocs:dyn/wave_changing_timer") == 0) ? true : entity.getData("skyhighocs:dyn/jet_streak_timer") == 1);
+      return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && transer.canUseTranser(entity);
+    };
+    if (keyBind == "CONFIRM") {
+      return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && transer.canUseTranser(entity);
+    };
+    if (keyBind == "BACK") {
+      return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && transer.canUseTranser(entity);
     };
     return transerOS.isKeyBindEnabled(entity, keyBind);
   });

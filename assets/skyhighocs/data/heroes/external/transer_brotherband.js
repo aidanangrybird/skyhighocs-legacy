@@ -119,6 +119,107 @@ function initModule(system) {
     moduleMessageName: "BrotherBand",
     type: 3,
     command: "bb",
+    transerMenues: {
+      "BrotherBand_editing": {
+        parent: "BrotherBand",
+        buttons: {
+          "BrotherBand_delete": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test BrotherBands delete");
+              }
+            }
+          },
+          "BrotherBand_edit": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test BrotherBands select");
+              }
+            }
+          }
+        }
+      },
+      "BrotherBand": {
+        parent: "main",
+        buttons: {
+          "BrotherBand_add": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test BrotherBands add");
+              }
+            }
+          },
+          "BrotherBand_select_1": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test BrotherBands select 1");
+              }
+            }
+          },
+          "BrotherBand_select_2": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test BrotherBands select 2");
+              }
+            }
+          },
+          "BrotherBand_select_3": {
+            borderingButtons: {
+              top: "",
+              bottom: "",
+              left: "",
+              right: "",
+            },
+            properties: {
+              action: (entity, manager) => {
+                system.moduleMessage(this, entity, "Test BrotherBands select 3");
+              }
+            }
+          }
+        }
+      }
+    },
+    transerButton: {
+      borderingButtons: {
+        bottom: "main_settings",
+        left: "main_groups",
+      },
+      properties: {
+        action: (entity, manager) => {
+          manager.setData(entity, "skyhighocs:dyn/current_menu", "BrotherBand");
+        }
+      }
+    },
     modeID: "BrotherBand",
     helpMessage: "<n>!bb <nh>-<n> BrotherBand",
     chatModeMessage: "<n>You are now in <nh>BrotherBand<n> mode!",
