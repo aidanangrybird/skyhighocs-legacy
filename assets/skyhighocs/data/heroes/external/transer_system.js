@@ -1,6 +1,131 @@
 //If I see anyone steal this, I will be very mad as I have spent a lot of time working on this to get it working well
 //So please don't steal this, it will look very bad on you
 
+//Encryption stuff
+var possibleChars = ["!","\"","#","$","%","&","'","(",")","*","+",",","-",".","/","0","1","2","3","4","5","6","7","8","9",":",";","<","=",">","?","@","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","[","\\","]","^","_","`","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","{","|","}","~", " "];
+var possibleNumbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+var possibleLetters = ["A", "B", "C", "D", "E", "F"];
+
+/**
+ * Encrypts secret message
+ * @param {JSEntity} entity - Entity getting randomness from
+ * @param {string} message - Message to encrypt
+ * @returns Object containing the encrypted message and key to decode encrypted message
+ **/
+function encryptSecretMessage(entity, message) {
+  var nbt = mainNBT(entity);
+  var computerID = nbt.getString("computerID");
+  var offset = Math.floor(20*Math.random());
+  var offsetComputerID = computerID.substring(offset) + computerID.substring(0, offset);
+  var computerIDNumbers = offsetComputerID.split("");
+  var messageChars = message.split("");
+  var keyLength = 0;
+  var encryptedMessage = "";
+  var adjustments = [];
+  var adjustmentDirections = [];
+  messageChars.forEach(character => {
+    var characterIndex = possibleChars.indexOf(character);
+    var adjustmentDirection = Math.random();
+    var adjustment = parseInt(computerIDNumbers[keyLength%20]);
+    adjustments.push(adjustment);
+    if (adjustmentDirection > 0.6) {
+      var finalAdjustment = characterIndex - adjustment;
+      finalAdjustment = (finalAdjustment < 0 ? (95 + finalAdjustment) : finalAdjustment);
+      var newChar = possibleChars[finalAdjustment%95];
+      encryptedMessage = encryptedMessage + newChar;
+      adjustmentDirections.push((Math.random() > 0.5) ? "A" : "C");
+    };
+    if ((adjustmentDirection <= 0.6) && (adjustmentDirection >= 0.4)) {
+      var finalAdjustment = characterIndex;
+      var newChar = possibleChars[finalAdjustment%95];
+      encryptedMessage = encryptedMessage + newChar;
+      adjustmentDirections.push((Math.random() > 0.5) ? "D" : "E");
+    };
+    if (adjustmentDirection < 0.4) {
+      var finalAdjustment = characterIndex + adjustment;
+      finalAdjustment = (finalAdjustment < 0 ? (95 + finalAdjustment) : finalAdjustment);
+      var newChar = possibleChars[finalAdjustment%95];
+      encryptedMessage = encryptedMessage + newChar;
+      adjustmentDirections.push((Math.random() > 0.5) ? "B" : "F");
+    };
+    keyLength = keyLength + 1;
+  });
+  var newOffsetFirst = "";
+  var newOffsetSecond = "";
+  if (offset < 10) {
+    newOffsetFirst = "0";
+    newOffsetSecond = "" + offset;
+  } else {
+    var newOffset = "" + offset;
+    var offsetChars = newOffset.split("");
+    newOffsetFirst = offsetChars[0];
+    newOffsetSecond = offsetChars[1];
+  };
+  var scrambledKey = "";
+  for (var i=0;i<adjustments.length;i++) {
+    scrambledKey = scrambledKey + ((Math.random() > 0.5) ? (adjustments[i] + adjustmentDirections[i]) : (adjustmentDirections[i] + adjustments[i]));
+  };
+  var publicKey = newOffsetFirst + scrambledKey + newOffsetSecond;
+  return {
+    encryptedMessage: encryptedMessage,
+    publicKey: publicKey,
+  };
+};
+
+/**
+ * Decrypts secret message
+ * @param {string} message - Encrypted message
+ * @param {string} publicKey - Key used to decrypt the encrypted message
+ * @returns Decrypted secret message
+ **/
+function decryptSecretMessage(message, publicKey) {
+  var offset = parseInt(publicKey.substring(0,1) + publicKey.substring(publicKey.length-1));
+  var pubKey = publicKey.substring(1,publicKey.length-1);
+  var messageChars = message.split("");
+  var messageLength = messageChars.length;
+  var publicKeyChars = pubKey.split("");
+  var publicKeyLength = pubKey.length;
+  var offsetComputerIDLong = "";
+  var adjustmentDirections = [];
+  publicKeyChars.forEach(character => {
+    if (possibleNumbers.indexOf(character) > -1) {
+      offsetComputerIDLong = offsetComputerIDLong + character;
+    };
+    if (possibleLetters.indexOf(character) > -1) {
+      adjustmentDirections.push(character);
+    };
+  });
+  var offsetComputerID = offsetComputerIDLong.substring(0, 49);
+  var computerID = offsetComputerID.substring(20-offset, 49) + offsetComputerID.substring(0, 20-offset);
+  var adjustments = offsetComputerID.split("");
+  var pubKeyProgress = 0;
+  var decryptedMessage = "";
+  messageChars.forEach(character => {
+    var adjustmentDirection = adjustmentDirections[pubKeyProgress];
+    var adjustment = parseInt(adjustments[(pubKeyProgress)%20]);
+    var characterIndex = possibleChars.indexOf(character);
+    if ((adjustmentDirection == "A") || (adjustmentDirection == "C")) {
+      var finalAdjustment = characterIndex + adjustment;
+      finalAdjustment = (finalAdjustment < 0 ? (95 + finalAdjustment) : finalAdjustment);
+      var newChar = possibleChars[finalAdjustment%95];
+      decryptedMessage = decryptedMessage + newChar;
+    };
+    if ((adjustmentDirection == "D") || (adjustmentDirection == "E")) {
+      var finalAdjustment = characterIndex;
+      var newChar = possibleChars[finalAdjustment%95];
+      decryptedMessage = decryptedMessage + newChar;
+    };
+    if ((adjustmentDirection == "B") || (adjustmentDirection == "F")) {
+      var finalAdjustment = characterIndex - adjustment;
+      finalAdjustment = (finalAdjustment < 0 ? (95 + finalAdjustment) : finalAdjustment);
+      var newChar = possibleChars[finalAdjustment%95];
+      decryptedMessage = decryptedMessage + newChar;
+    };
+    pubKeyProgress = pubKeyProgress + 1;
+  });
+  return decryptedMessage;
+};
+
 regex = /((<ob>))|(<n>)|(<nh>)|(<s>)|(<sh>)|(<e>)|(<eh>)|(<r>)|(<dragon>)|(<leo>)|(<pegasus>)/gm;
 
 variableRegex = /[\s-]/gm;
@@ -37,39 +162,30 @@ var months = [
 var hexColors = {
   "Ace Stelar": "0xFF0000",
   "Aidan Stelar": "0xFF8900",
-  "Lucas Stelar": "0xFF0000",
+  "Cade Stelar": "0x0000FF",
   "Chase Stelar": "0x55FF00",
   "Damien Stelar": "0x8000FF"
 };
 
 function assignTranser(entity, manager, satellite) {
   var nbt = mainNBT(entity);
+  if (!nbt.hasKey("personalMessage")) {
+    manager.setString(nbt, "personalMessage", "");
+  };
+  if (!nbt.hasKey("secretMessage")) {
+    manager.setString(nbt, "secretMessage", "");
+  };
+  if (!nbt.hasKey("publicKey")) {
+    manager.setString(nbt, "publicKey", "");
+  };
   manager.setString(nbt, "satellite", satellite);
   manager.setData(entity, "skyhighocs:dyn/satellite", satellite);
   manager.setBoolean(nbt, "Unbreakable", true);
   if (!nbt.hasKey("computerID")) {
     if (PackLoader.getSide() == "SERVER") {
-      var computerID = Math.random().toFixed(8).toString().substring(2);
+      var computerID = Math.random().toFixed(20).toString().substring(2);
       manager.setString(nbt, "computerID", computerID);
     };
-  };
-  switch (satellite) {
-    case "dragon":
-      manager.setString(nbt, "systemColor", "\u00A72");
-      manager.setData(entity, "skyhighocs:dyn/system_color", nbt.getString("systemColor"));
-      break;
-    case "leo":
-      manager.setString(nbt, "systemColor", "\u00A74");
-      manager.setData(entity, "skyhighocs:dyn/system_color", nbt.getString("systemColor"));
-      break;
-    case "pegasus":
-      manager.setString(nbt, "systemColor", "\u00A71");
-      manager.setData(entity, "skyhighocs:dyn/system_color", nbt.getString("systemColor"));
-      break;
-    default:
-      manager.setString(nbt, "systemColor", "\u00A70");
-      manager.setData(entity, "skyhighocs:dyn/system_color", nbt.getString("systemColor"));
-      break;
   };
 };
 
@@ -279,26 +395,34 @@ function direction(base, other) {
   return direction;
 };
 
-function mainNBT(entity) {
-  return entity.getWornChestplate().nbt();
+function mainPiece(entity) {
+  return entity.getWornChestplate();
 };
 
-function getMainNBT(entity) {
+function mainNBT(entity) {
+  return mainPiece(entity).nbt();
+};
+
+function getMainPiece(entity) {
   if (entity.isWearingFullSuit()) {
     if (entity.getWornHelmet().nbt().hasKey("computerID")) {
-      return entity.getWornHelmet().nbt();
+      return entity.getWornHelmet();
     };
     if (entity.getWornChestplate().nbt().hasKey("computerID")) {
-      return entity.getWornChestplate().nbt();
+      return entity.getWornChestplate();
     };
     if (entity.getWornLeggings().nbt().hasKey("computerID")) {
-      return entity.getWornLeggings().nbt();
+      return entity.getWornLeggings();
     };
     if (entity.getWornBoots().nbt().hasKey("computerID")) {
-      return entity.getWornBoots().nbt();
+      return entity.getWornBoots();
     };
   };
   return null;
+};
+
+function getMainNBT(entity) {
+  return ((getMainPiece(entity) != null) ? getMainPiece(entity).nbt() : null);
 };
 
 /**
@@ -515,6 +639,60 @@ function setActiveButton(entity, manager, menuButtons) {
   manager.setData(entity, "skyhighocs:dyn/selected_button", button);
 };
 
+function updateList(entity, manager, count, list) {
+  manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+  manager.setData(entity, "skyhighocs:dyn/scroll_entry_0", "");
+  manager.setData(entity, "skyhighocs:dyn/scroll_entry_1", "");
+  manager.setData(entity, "skyhighocs:dyn/scroll_entry_2", "");
+  manager.setData(entity, "skyhighocs:dyn/scroll_entry_3", "");
+  manager.setData(entity, "skyhighocs:dyn/scroll_entry_4", "");
+  manager.setData(entity, "skyhighocs:dyn/scroll_entry_5", "");
+  manager.setData(entity, "skyhighocs:dyn/scroll_entry_6", "");
+  manager.setData(entity, "skyhighocs:dyn/scroll_entry_7", "");
+  manager.setData(entity, "skyhighocs:dyn/scroll_entry_8", "");
+  manager.setData(entity, "skyhighocs:dyn/scroll_entry_9", "");
+  for (i=0;i<(count-1);i++) {
+    var value = entity.getData("skyhighocs:dyn/scroll_value") + i;
+    var variableName = "skyhighocs:dyn/scroll_entry_" + i;
+    manager.setData(entity, variableName, (list.length > value) ? list[value] : "");
+  };
+};
+
+var defaultButtons = [
+  {
+    buttonID: "main_personal",
+    borderingButtons: {
+      bottom: "main_contacts",
+      right: "main_Brother",
+    },
+    properties: {
+      confirmAction: (entity, manager) => {
+      },
+      backAction: (entity, manager) => {
+        manager.setData(entity, "skyhighocs:dyn/transer", false);
+      }
+    }
+  },
+  {
+    buttonID: "main_chat",
+    borderingButtons: {
+      top: "main_contacts",
+      right: "main_settings",
+    },
+    properties: {
+      confirmAction: (entity, manager) => {
+        systemMessage(entity, "Not available yet!");
+      },
+      backAction: (entity, manager) => {
+        manager.setData(entity, "skyhighocs:dyn/transer", false);
+      }
+    }
+  }
+];
+
+var defaultMenus = {
+};
+
 /**
  * Initializes transer system
  * @param {object} moduleList - Transer system modules
@@ -553,16 +731,22 @@ function initSystem(moduleList, transerName, satellite) {
   var onInitSystemIndexes = [];
   /** @var messagingIndexes - Indexes of messaging handlers */
   var messagingIndexes = [];
+  /** @var mainButtons - Main buttons */
+  var mainButtons = [];
   /** @var buttonBorders - Button borders */
   var buttonBorders = [];
   /** @var menuIDs - Menu IDs */
   var menuIDs = [];
   /** @var parentMenuIDs - Parent menu IDs */
   var parentMenuIDs = [];
+  /** @var prevButtons - Previous button IDs */
+  var prevButtons = [];
   /** @var buttonIDs - Button IDs */
   var buttonIDs = [];
   /** @var buttonProperties - Button properties */
   var buttonProperties = [];
+  /** @var telekinesisButtons - Buttons that use telekinesis for getting a value */
+  var telekinesisButtons = [];
   /** @var chatModes - Chat modes */
   var chatModes = [];
   /** @var waveIndex - Wave calling index */
@@ -574,18 +758,21 @@ function initSystem(moduleList, transerName, satellite) {
   /** @var powerArray - Array of powers to add */
   var powerArray = [];
   /** @var human - Untransformed name */
-  var human = null;
+  var human = "";
   /** @var compatibleUUID - Compatible human UUID */
   var compatibleUUID = "";
   /** @var waveChange - Transformed name */
-  var waveChange = null;
+  var waveChange = "";
   /** @var waveColor - Transformd color */
-  var waveColor = null;
+  var waveColor = "";
   /** @var emBeing - EM Being name */
-  var emBeing = null;
+  var emBeing = "";
   var hasError = false;
   var errors = [];
   logMessage("Attempting to initialize " + ((moduleList.length > 1) ? moduleList.length + " modules" : moduleList.length + " module") + " on transer " + transerName + "!");
+  defaultButtons.forEach(button => {
+    mainButtons.push(button);
+  });
   moduleList.forEach(module => {
     if (module.hasOwnProperty("initModule")) {
       var moduleInit = module.initModule(transerInstance);
@@ -614,27 +801,28 @@ function initSystem(moduleList, transerName, satellite) {
                 onInitSystemIndexes.push(modules.length-1);
                 logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onInitSystem\"!");
               };
-              if (moduleInit.hasOwnProperty("transerButton")) {
-                var button = moduleInit.transerButton;
-                buttonIDs.push("main_" + moduleInit.name);
-                buttonProperties.push(button.properties);
-                buttonBorders.push(button.borderingButtons);
-                logMessage("Added button \"" + "main_" + moduleInit.name + "\" to menu \"main\"!");
+              if (moduleInit.hasOwnProperty("transerMainButton")) {
+                var button = moduleInit.transerMainButton;
+                mainButtons.push(button);
               };
-              if (moduleInit.hasOwnProperty("transerMenues")) {
-                var menuList = moduleInit.transerMenues;
+              if (moduleInit.hasOwnProperty("transerMenus")) {
+                var menuList = moduleInit.transerMenus;
                 var menuIDList = Object.keys(menuList);
                 menuIDList.forEach(menuID => {
                   logMessage("Creating menu: " + menuID);
                   menuIDs.push(menuID);
                   var menu = menuList[menuID];
                   parentMenuIDs.push(menu.parent);
+                  prevButtons.push(menu.prevButton);
                   var buttons = menu.buttons;
                   var buttonIDList = Object.keys(buttons);
                   buttonIDList.forEach(buttonID => {
                     var button = buttons[buttonID];
                     buttonIDs.push(buttonID);
                     buttonProperties.push(button.properties);
+                    if (button.properties.hasOwnProperty("usesTelekinesis")) {
+                      telekinesisButtons.push(buttonID);
+                    };
                     buttonBorders.push(button.borderingButtons);
                     logMessage("Added button \"" + buttonID + "\" to menu \"" + menuID + "\"!");
                   });
@@ -665,27 +853,28 @@ function initSystem(moduleList, transerName, satellite) {
                 onInitSystemIndexes.push(modules.length-1);
                 logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onInitSystem\"!");
               };
-              if (moduleInit.hasOwnProperty("transerButton")) {
-                var button = moduleInit.transerButton;
-                buttonIDs.push("main_" + moduleInit.name);
-                buttonProperties.push(button.properties);
-                buttonBorders.push(button.borderingButtons);
-                logMessage("Added button \"" + "main_" + moduleInit.name + "\" to menu \"main\"!");
+              if (moduleInit.hasOwnProperty("transerMainButton")) {
+                var button = moduleInit.transerMainButton;
+                mainButtons.push(button);
               };
-              if (moduleInit.hasOwnProperty("transerMenues")) {
-                var menuList = moduleInit.transerMenues;
+              if (moduleInit.hasOwnProperty("transerMenus")) {
+                var menuList = moduleInit.transerMenus;
                 var menuIDList = Object.keys(menuList);
                 menuIDList.forEach(menuID => {
                   logMessage("Creating menu: " + menuID);
                   menuIDs.push(menuID);
                   var menu = menuList[menuID];
                   parentMenuIDs.push(menu.parent);
+                  prevButtons.push(menu.prevButton);
                   var buttons = menu.buttons;
                   var buttonIDList = Object.keys(buttons);
                   buttonIDList.forEach(buttonID => {
                     var button = buttons[buttonID];
                     buttonIDs.push(buttonID);
                     buttonProperties.push(button.properties);
+                    if (button.properties.hasOwnProperty("usesTelekinesis")) {
+                      telekinesisButtons.push(buttonID);
+                    };
                     buttonBorders.push(button.borderingButtons);
                     logMessage("Added button \"" + buttonID + "\" to menu \"" + menuID + "\"!");
                   });
@@ -718,27 +907,28 @@ function initSystem(moduleList, transerName, satellite) {
                 onInitSystemIndexes.push(modules.length-1);
                 logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onInitSystem\"!");
               };
-              if (moduleInit.hasOwnProperty("transerButton")) {
-                var button = moduleInit.transerButton;
-                buttonIDs.push("main_" + moduleInit.name);
-                buttonProperties.push(button.properties);
-                buttonBorders.push(button.borderingButtons);
-                logMessage("Added button \"" + "main_" + moduleInit.name + "\" to menu \"main\"!");
+              if (moduleInit.hasOwnProperty("transerMainButton")) {
+                var button = moduleInit.transerMainButton;
+                mainButtons.push(button);
               };
-              if (moduleInit.hasOwnProperty("transerMenues")) {
-                var menuList = moduleInit.transerMenues;
+              if (moduleInit.hasOwnProperty("transerMenus")) {
+                var menuList = moduleInit.transerMenus;
                 var menuIDList = Object.keys(menuList);
                 menuIDList.forEach(menuID => {
                   logMessage("Creating menu: " + menuID);
                   menuIDs.push(menuID);
                   var menu = menuList[menuID];
                   parentMenuIDs.push(menu.parent);
+                  prevButtons.push(menu.prevButton);
                   var buttons = menu.buttons;
                   var buttonIDList = Object.keys(buttons);
                   buttonIDList.forEach(buttonID => {
                     var button = buttons[buttonID];
                     buttonIDs.push(buttonID);
                     buttonProperties.push(button.properties);
+                    if (button.properties.hasOwnProperty("usesTelekinesis")) {
+                      telekinesisButtons.push(buttonID);
+                    };
                     buttonBorders.push(button.borderingButtons);
                     logMessage("Added button \"" + buttonID + "\" to menu \"" + menuID + "\"!");
                   });
@@ -762,7 +952,7 @@ function initSystem(moduleList, transerName, satellite) {
             } else {
               modules.push(moduleInit);
               waveIndex = modules.length-1;
-              human = (moduleInit.hasOwnProperty("human")) ? moduleInit.human : null;
+              human = (moduleInit.hasOwnProperty("human")) ? moduleInit.human : "";
               logMessage("Module \"" + moduleInit.name + "\" was initialized successfully on transer " + transerName + "!");
               if (moduleInit.hasOwnProperty("onInitSystem")) {
                 onInitSystemIndexes.push(modules.length-1);
@@ -843,8 +1033,37 @@ function initSystem(moduleList, transerName, satellite) {
       logMessage("Module at position " + moduleList.indexOf(module) + " cannot be initialized!");
     };
   });
+  
+  var menuList = defaultMenus;
+  var menuIDList = Object.keys(menuList);
+  menuIDList.forEach(menuID => {
+    logMessage("Creating menu: " + menuID);
+    menuIDs.push(menuID);
+    var menu = menuList[menuID];
+    parentMenuIDs.push(menu.parent);
+    prevButtons.push(menu.prevButton);
+    var buttons = menu.buttons;
+    var buttonIDList = Object.keys(buttons);
+    buttonIDList.forEach(buttonID => {
+      var button = buttons[buttonID];
+      buttonIDs.push(buttonID);
+      buttonProperties.push(button.properties);
+      if (button.properties.hasOwnProperty("usesTelekinesis")) {
+        telekinesisButtons.push(buttonID);
+      };
+      buttonBorders.push(button.borderingButtons);
+      logMessage("Added button \"" + buttonID + "\" to menu \"" + menuID + "\"!");
+    });
+  });
+  logMessage("Creating menu: main");
   menuIDs.push("main");
   parentMenuIDs.push("main");
+  mainButtons.forEach(button => {
+    buttonIDs.push(button.buttonID);
+    buttonProperties.push(button.properties);
+    buttonBorders.push(button.borderingButtons);
+    logMessage("Added button \"" + button.buttonID + "\" to menu \"main\"!");
+  });
   logMessage("Successfully initialized " + modules.length + " out of " + ((moduleList.length > 1) ? moduleList.length + " modules" : moduleList.length + " module") + " on transer " + transerName + "!");
   function switchChatModes(entity, manager, mode) {
     var nbt = mainNBT(entity);
@@ -895,17 +1114,30 @@ function initSystem(moduleList, transerName, satellite) {
     var buttonIndex = buttonIDs.indexOf(selectedButton);
     if (buttonIndex > -1) {
       var properties = buttonProperties[buttonIndex];
-      if (properties.hasOwnProperty("action")) {
-        properties.action(entity, manager);
+      if (properties.hasOwnProperty("confirmAction")) {
+        properties.confirmAction(entity, manager);
       };
     };
   };
   function backAction(entity, manager) {
-    var currentMenu = entity.getData("skyhighocs:dyn/current_menu");
-    var menuIndex = menuIDs.indexOf(currentMenu);
-    if (menuIndex > -1) {
-      var newMenu = parentMenuIDs[menuIndex];
-      manager.setData(entity, "skyhighocs:dyn/current_menu", newMenu);
+    var selectedButton = entity.getData("skyhighocs:dyn/selected_button");
+    var buttonIndex = buttonIDs.indexOf(selectedButton);
+    if (buttonIndex > -1) {
+      var properties = buttonProperties[buttonIndex];
+      if (properties.hasOwnProperty("backAction")) {
+        properties.backAction(entity, manager);
+      } else {
+        var currentMenu = entity.getData("skyhighocs:dyn/current_menu");
+        var menuIndex = menuIDs.indexOf(currentMenu);
+        if (menuIndex > -1) {
+          var newMenu = parentMenuIDs[menuIndex];
+          manager.setData(entity, "skyhighocs:dyn/current_menu", newMenu);
+          if (currentMenu != "main") {
+            var prevButton = prevButtons[menuIndex];
+            manager.setData(entity, "skyhighocs:dyn/selected_button", prevButton);
+          };
+        };
+      };
     };
   };
   function hasTextAction(entity, manager) {
@@ -919,17 +1151,20 @@ function initSystem(moduleList, transerName, satellite) {
     };
     return false;
   };
-  function textAction(entity, manager) {
+  function textAction(entity, manager, entry) {
     var selectedButton = entity.getData("skyhighocs:dyn/selected_button");
     var buttonIndex = buttonIDs.indexOf(selectedButton);
     if (buttonIndex > -1) {
       var properties = buttonProperties[buttonIndex];
       if (properties.hasOwnProperty("textAction")) {
-        properties.textAction(entity, manager);
+        properties.textAction(entity, manager, entry);
       };
     };
   };
   return {
+    isTelekinesisButton: (entity) => {
+      return ((telekinesisButtons.indexOf(entity.getData("skyhighocs:dyn/selected_button")) > -1) ? true : false);
+    },
     /**
      * Power stuff (I hate that I had to do it this way)
      * @param {JSHero} hero - Required
@@ -975,6 +1210,7 @@ function initSystem(moduleList, transerName, satellite) {
      **/
     keyBinds: (hero) => {
       hero.addKeyBind("TRANSER", "Open/Close Transer", 4);
+      hero.addKeyBind("TELEKINESIS", "BrotherBand", 2);
       hero.addKeyBindFunc("CONFIRM", (entity, manager) => {
         confirmAction(entity, manager);
         return true;
@@ -983,13 +1219,25 @@ function initSystem(moduleList, transerName, satellite) {
         backAction(entity, manager);
         return true;
       }, "Back", 3);
-      hero.addKeyBind("SHAPE_SHIFT", "Send message/Enter command", 2);
+      hero.addKeyBind("SHAPE_SHIFT", "Enter command/value", 2);
     },
     setKeyBind: (entity, keyBind) => {
-      switch (keyBind) {
-        default:
-          return true;
+      if (keyBind == "TRANSER") {
+        return canUseTranser(entity);
       };
+      if (keyBind == "SHAPE_SHIFT") {
+        return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && canUseTranser(entity) && (!this.isTelekinesisButton(entity) || (this.isTelekinesisButton(entity) && !entity.getData("skyhighocs:dyn/entering_value")));
+      };
+      if (keyBind == "TELEKINESIS") {
+        return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && canUseTranser(entity) && this.isTelekinesisButton(entity) && entity.getData("skyhighocs:dyn/entering_value");
+      };
+      if (keyBind == "CONFIRM") {
+        return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && canUseTranser(entity);
+      };
+      if (keyBind == "BACK") {
+        return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && canUseTranser(entity);
+      };
+      return true;
     },
     /**
      * EM wave change stuff
@@ -1082,6 +1330,9 @@ function initSystem(moduleList, transerName, satellite) {
      * @param {string} modifier - Required
      **/
     isModifierEnabled: function (entity, modifier) {
+      if (modifier.name() == "fiskheroes:telekinesis") {
+        return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && canUseTranser(entity) && this.isTelekinesisButton(entity) && entity.getData("skyhighocs:dyn/entering_value");
+      };
       if (modifier.name() == "fiskheroes:shape_shifting" || modifier.name() == "fiskheroes:transformation") {
         return true;
       } else {
@@ -1098,7 +1349,7 @@ function initSystem(moduleList, transerName, satellite) {
       if (!entity.getDataOrDefault("skyhighocs:dyn/system_init", true)) {
         assignTranser(entity, manager, assignedSatellite);
         //status(entity);
-        if (human != null) {
+        if (human != "") {
           var hexColor = hexColors[human];
           manager.setString(nbt, "hudColorSkyHigh", hexColor);
         };
@@ -1133,6 +1384,11 @@ function initSystem(moduleList, transerName, satellite) {
         manager.setData(entity, "fiskheroes:penetrate_martian_invis", false);
       };
       if (entity.getDataOrDefault("skyhighocs:dyn/system_init", false)) {
+        if (entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && canUseTranser(entity) && this.isTelekinesisButton(entity) && entity.getData("skyhighocs:dyn/entering_value")) {
+          if (entity.getData("fiskheroes:grab_id") > -1) {
+            manager.setData(entity, "fiskheroes:disguise", "" + entity.getData("fiskheroes:grab_id") + "");
+          };
+        };
         if (typeof entity.getData("fiskheroes:disguise") === "string") {
           if (!(entity.getData("fiskheroes:disguise") == waveChange || entity.getData("fiskheroes:disguise") == human)) {
             if (entity.getData("skyhighocs:dyn/wave_changing_timer") == 1) {
@@ -1158,6 +1414,9 @@ function initSystem(moduleList, transerName, satellite) {
                   break;
                 case "status":
                   status(entity);
+                  break;
+                case "cv":
+                  entity.as("PLAYER").addChatMessage(entity.getDataOrDefault("skyhighocs:dyn/" + args[1], 0));
                   break;
                 case "waveCalling":
                   if (entity.getUUID() == getCompatibleUUID(entity) && (emBeingIndex > -1 && waveChangeIndex > -1 && waveIndex > -1) && entity.as("PLAYER").isCreativeMode()) {
@@ -1208,8 +1467,8 @@ function initSystem(moduleList, transerName, satellite) {
                   break;
               };
             } else {
-              if (hasTextAction(entity, manager)) {
-                textAction(entity, manager);
+              if (hasTextAction(entity, manager) && entity.getData("skyhighocs:dyn/entering_value")) {
+                textAction(entity, manager, entity.getData("skyhighocs:dyn/entry"));
               } else {
                 var name = null;
                 if ((typeof waveChangeIndex === "undefined") ? false : waveChangeIndex > -1) {
@@ -1242,7 +1501,7 @@ function initSystem(moduleList, transerName, satellite) {
           manager.setData(entity, "fiskheroes:disguise", waveChange);
         };
       };
-      if (entity.getData("skyhighocs:dyn/transer")) {
+      if (entity.getData("skyhighocs:dyn/transer") && !entity.getData("skyhighocs:dyn/entering_value")) {
         syncMotion(entity, manager);
         var motion_x = entity.getData("skyhighocs:dyn/motion_x");
         var motion_z = entity.getData("skyhighocs:dyn/motion_z");
@@ -1261,10 +1520,14 @@ function initSystem(moduleList, transerName, satellite) {
           var buttonIndex = buttonIDs.indexOf(entity.getData("skyhighocs:dyn/selected_button"));
           if (buttonIndex > -1) {
             var borderingButtons = buttonBorders[buttonIndex];
+            var properties = buttonProperties[buttonIndex];
             //Up
             if (forward < negative_threshold) {
               if (borderingButtons.hasOwnProperty("top")) {
                 manager.setData(entity, "skyhighocs:dyn/selected_button", borderingButtons["top"]);
+              };
+              if (properties.hasOwnProperty("upAction")) {
+                properties.upAction(entity, manager);
               };
               manager.setData(entity, "skyhighocs:dyn/button_coolingdown", true);
             };
@@ -1273,12 +1536,18 @@ function initSystem(moduleList, transerName, satellite) {
               if (borderingButtons.hasOwnProperty("bottom")) {
                 manager.setData(entity, "skyhighocs:dyn/selected_button", borderingButtons["bottom"]);
               };
+              if (properties.hasOwnProperty("downAction")) {
+                properties.downAction(entity, manager);
+              };
               manager.setData(entity, "skyhighocs:dyn/button_coolingdown", true);
             };
             //Left
             if (strafe < negative_threshold) {
               if (borderingButtons.hasOwnProperty("left")) {
                 manager.setData(entity, "skyhighocs:dyn/selected_button", borderingButtons["left"]);
+              };
+              if (properties.hasOwnProperty("leftAction")) {
+                properties.leftAction(entity, manager);
               };
               manager.setData(entity, "skyhighocs:dyn/button_coolingdown", true);
             };
@@ -1287,7 +1556,17 @@ function initSystem(moduleList, transerName, satellite) {
               if (borderingButtons.hasOwnProperty("right")) {
                 manager.setData(entity, "skyhighocs:dyn/selected_button", borderingButtons["right"]);
               };
+              if (properties.hasOwnProperty("rightAction")) {
+                properties.rightAction(entity, manager);
+              };
               manager.setData(entity, "skyhighocs:dyn/button_coolingdown", true);
+            };
+          };
+          var newButtonIndex = buttonIDs.indexOf(entity.getData("skyhighocs:dyn/selected_button"));
+          if (newButtonIndex > -1) {
+            var properties = buttonProperties[newButtonIndex];
+            if (properties.hasOwnProperty("selectAction")) {
+              properties.selectAction(entity, manager);
             };
           };
         };

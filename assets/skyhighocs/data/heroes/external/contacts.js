@@ -37,6 +37,13 @@ function initModule(system) {
         };
       };
     };
+    var list = contactsList(entity, manager);
+    manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+    if ((list.length-1) < entity.getData("skyhighocs:dyn/scroll_value")) {
+      manager.setData(entity, "skyhighocs:dyn/scroll_value", (list.length-1));
+    };
+    manager.setData(entity, "skyhighocs:dyn/scroll_total", Math.max(list.length-7, 0));
+    system.updateList(entity, manager, 7, list);
   };
   /**
    * Remove contact by username
@@ -62,6 +69,13 @@ function initModule(system) {
       system.moduleMessage(this, entity, "<s>Removed contact with username <sh>" + username + "<s>!");
       manager.removeTag(contacts, index);
     };
+    var list = contactsList(entity, manager);
+    manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+    if ((list.length-1) < entity.getData("skyhighocs:dyn/scroll_value")) {
+      manager.setData(entity, "skyhighocs:dyn/scroll_value", (list.length-1));
+    };
+    manager.setData(entity, "skyhighocs:dyn/scroll_total", Math.max(list.length-7, 0));
+    system.updateList(entity, manager, 7, list);
   };
   /**
    * Lists player's contacts
@@ -80,109 +94,292 @@ function initModule(system) {
       system.moduleMessage(this, entity, "<nh>" + entry);
     });
   };
+  /**
+   * Lists player's contacts
+   * @param {JSEntity} entity - Required
+   * @param {JSDataManager} manager - Required
+   **/
+  function contactsList(entity, manager) {
+    var nbt = system.getMainNBT(entity);
+    if (!nbt.hasKey("contacts")) {
+      var newContactsList = manager.newTagList();
+      manager.setTagList(nbt, "contacts", newContactsList);
+    };
+    var contacts = system.getStringArray(nbt.getStringList("contacts"));
+    return contacts;
+  };
   return {
     name: "contacts",
     moduleMessageName: "Contacts",
     type: 1,
     command: "c",
-    transerMenues: {
-      "contact_editing": {
-        parent: "contacts",
-        buttons: {
-          "contacts_delete": {
-            borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
-            },
-            properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test contacts delete");
-              }
-            }
-          },
-          "contacts_edit": {
-            borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
-            },
-            properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test contacts select");
-              }
-            }
-          }
-        }
-      },
+    transerMenus: {
       "contacts": {
         parent: "main",
+        prevButton: "main_contacts",
         buttons: {
-          "contacts_add": {
+          "contacts_edit": {
             borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
+              bottom: "contacts_add",
             },
             properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test contacts add");
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_select_0");
+              },
+              backAction: (entity, manager) => {
+                if (entity.getData("skyhighocs:dyn/entering_value")) {
+                  manager.setData(entity, "skyhighocs:dyn/entering_value", false);
+                } else {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "main_contacts");
+                  manager.setData(entity, "skyhighocs:dyn/current_menu", "main");
+                };
+              },
+            }
+          },
+          "contacts_add": {
+            borderingButtons: {
+              top: "contacts_edit",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/entering_value", true);
+              },
+              backAction: (entity, manager) => {
+                if (entity.getData("skyhighocs:dyn/entering_value")) {
+                  manager.setData(entity, "skyhighocs:dyn/entering_value", false);
+                } else {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "main_contacts");
+                  manager.setData(entity, "skyhighocs:dyn/current_menu", "main");
+                };
+              },
+              textAction: (entity, manager, entry) => {
+                addContact(entity, manager, entry);
+                manager.setData(entity, "skyhighocs:dyn/entering_value", false);
+              },
+            }
+          },
+          "contacts_delete": {
+            borderingButtons: {
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                removeContact(entity, manager, entity.getData("skyhighocs:dyn/list_entry"));
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_select_0");
+              },
+              backAction: (entity, manager) => {
+                var listValue = entity.getData("skyhighocs:dyn/list_value").toString();
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_select_" + listValue);
+              },
+            }
+          },
+          "contacts_select_0": {
+            borderingButtons: {
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 0);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_0"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_edit");
+              },
+              upAction: (entity, manager) => {
+                var list = contactsList(entity, manager);
+                manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+                var value = entity.getData("skyhighocs:dyn/scroll_value");
+                if (value > 0) {
+                  manager.setData(entity, "skyhighocs:dyn/scroll_value", entity.getData("skyhighocs:dyn/scroll_value")-1);
+                };
+                system.updateList(entity, manager, 7, list);
+              },
+              downAction: (entity, manager) => {
+                var list = contactsList(entity, manager);
+                if ((list.length) > 1) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_select_1");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 0);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_0"));
               }
             }
           },
           "contacts_select_1": {
             borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
+              top: "contacts_select_0",
             },
             properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test contacts select 1");
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 1);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_1"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = contactsList(entity, manager);
+                if ((list.length) > 2) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_select_2");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 1);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_1"));
               }
             }
           },
           "contacts_select_2": {
             borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
+              top: "contacts_select_1",
             },
             properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test contacts select 2");
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 2);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_2"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = contactsList(entity, manager);
+                if ((list.length) > 3) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_select_3");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 2);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_2"));
               }
             }
           },
           "contacts_select_3": {
             borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
+              top: "contacts_select_2",
             },
             properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test contacts select 3");
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 3);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_3"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = contactsList(entity, manager);
+                if ((list.length) > 4) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_select_4");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 3);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_3"));
+              }
+            }
+          },
+          "contacts_select_4": {
+            borderingButtons: {
+              top: "contacts_select_3",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 4);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_4"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = contactsList(entity, manager);
+                if ((list.length) > 5) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_select_5");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 4);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_4"));
+              }
+            }
+          },
+          "contacts_select_5": {
+            borderingButtons: {
+              top: "contacts_select_4",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 5);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_5"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = contactsList(entity, manager);
+                if ((list.length) > 6) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_select_6");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 5);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_5"));
+              }
+            }
+          },
+          "contacts_select_6": {
+            borderingButtons: {
+              top: "contacts_select_5",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 6);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_6"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = contactsList(entity, manager);
+                manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+                var value = entity.getData("skyhighocs:dyn/scroll_value");
+                if ((list.length-7) > value) {
+                  manager.setData(entity, "skyhighocs:dyn/scroll_value", entity.getData("skyhighocs:dyn/scroll_value")+1);
+                };
+                system.updateList(entity, manager, 7, list);
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 6);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_6"));
               }
             }
           }
         }
       }
     },
-    transerButton: {
+    transerMainButton: {
+      buttonID: "main_contacts",
       borderingButtons: {
-        bottom: "main_waypoints",
+        top: "main_personal",
+        bottom: "main_chat",
         right: "main_groups",
       },
       properties: {
-        action: (entity, manager) => {
+        confirmAction: (entity, manager) => {
           manager.setData(entity, "skyhighocs:dyn/current_menu", "contacts");
+          manager.setData(entity, "skyhighocs:dyn/selected_button", "contacts_edit");
+          var list = contactsList(entity, manager);
+          manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+          manager.setData(entity, "skyhighocs:dyn/scroll_value", 0);
+          manager.setData(entity, "skyhighocs:dyn/scroll_total", Math.max(list.length-7, 0));
+          system.updateList(entity, manager, 7, list);
+        },
+        backAction: (entity, manager) => {
+          manager.setData(entity, "skyhighocs:dyn/transer", false);
         }
       }
     },

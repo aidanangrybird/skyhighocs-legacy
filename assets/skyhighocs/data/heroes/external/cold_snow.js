@@ -28,6 +28,7 @@ function initModule(system) {
       if (entity.getData("skyhighocs:dyn/calling_timer") == 1) {
         manager.setString(entity.getWornChestplate().nbt(), "emBeing", "Pryetak");
         manager.setDataWithNotify(entity, "skyhighocs:dyn/em_being", "Pryetak");
+        manager.setDataWithNotify(entity, "skyhighocs:dyn/em_being_variable", system.formatEMBeing(entity.getData("skyhighocs:dyn/em_being")));
         manager.setDataWithNotify(entity, "skyhighocs:dyn/calling", false);
         manager.setDataWithNotify(entity, "skyhighocs:dyn/calling_timer", 0.0);
       };

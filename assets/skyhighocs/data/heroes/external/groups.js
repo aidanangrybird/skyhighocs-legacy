@@ -60,6 +60,13 @@ function initModule(system) {
         manager.setString(nbt, "groupSelected", groupName);
       };
     };
+    var list = groupsList(entity, manager);
+    manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+    if ((list.length-1) < entity.getData("skyhighocs:dyn/scroll_value")) {
+      manager.setData(entity, "skyhighocs:dyn/scroll_value", (list.length-1));
+    };
+    manager.setData(entity, "skyhighocs:dyn/scroll_total", Math.max(list.length-7, 0));
+    system.updateList(entity, manager, 7, list);
   };
   /**
    * List groups
@@ -77,6 +84,20 @@ function initModule(system) {
     groups.forEach(entry => {
       system.moduleMessage(this, entity, "<nh>" + entry.groupName + "<n> (<nh>" + entry.memberCount + ((entry.memberCount > 1) ? "<n> members)" : "<n> member)"))
     });
+  };
+  /**
+   * List groups
+   * @param {JSEntity} entity - Required
+   * @param {JSDataManager} manager - Required
+   **/
+  function groupsList(entity, manager) {
+    var nbt = system.getMainNBT(entity);
+    if (!nbt.hasKey("groups")) {
+      var newGroupsList = manager.newTagList();
+      manager.setTagList(nbt, "groups", newGroupsList);
+    };
+    var groupNames = getGroupArray(entity, manager);
+    return groupNames;
   };
   /**
    * Remove group by group name
@@ -98,6 +119,13 @@ function initModule(system) {
       system.moduleMessage(this, entity, "<e>Removed group <eh>" + groupName + "<e>!");
       manager.removeTag(groups, groupIndex);
     };
+    var list = groupsList(entity, manager);
+    manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+    if ((list.length-1) < entity.getData("skyhighocs:dyn/scroll_value")) {
+      manager.setData(entity, "skyhighocs:dyn/scroll_value", (list.length-1));
+    };
+    manager.setData(entity, "skyhighocs:dyn/scroll_total", Math.max(list.length-7, 0));
+    system.updateList(entity, manager, 7, list);
   };
   /**
    * Adds member to group
@@ -109,10 +137,11 @@ function initModule(system) {
   function addGroupMember(entity, manager, groupName, username) {
     var nbt = system.getMainNBT(entity);
     var groups = nbt.getTagList("groups");
+    var contacts = nbt.getTagList("contacts");
     var groupIndex = getGroupArray(entity).indexOf(groupName);
     var members = groups.getCompoundTag(groupIndex).getStringList("members");
     var memberIndex = system.getStringArray(members).indexOf(username);
-    var contacts = nbt.getTagList("contacts");
+    var groups = nbt.getTagList("groups");
     var contactIndex = system.getStringArray(contacts).indexOf(username);
     if (!nbt.hasKey("groups")) {
       system.moduleMessage(this, entity, "<e>You have not set up any groups yet!");
@@ -131,8 +160,8 @@ function initModule(system) {
    * Adds member to group
    * @param {JSEntity} entity - Required
    * @param {JSDataManager} manager - Required
-   * @param {string} groupName - Name of group to add member to
-   * @param {string} username - Username to add to group
+   * @param {string} groupName - Name of group to remove member from
+   * @param {string} username - Username to remove from group
    **/
   function removeGroupMember(entity, manager, groupName, username) {
     var nbt = system.getMainNBT(entity);
@@ -176,136 +205,572 @@ function initModule(system) {
       });
     };
   };
+  /**
+   * Lists members of group
+   * @param {JSEntity} entity - Required
+   * @param {JSDataManager} manager - Required
+   * @param {string} groupName - Name of group to add member to
+   **/
+  function groupMembersList(entity, manager, groupName) {
+    var nbt = system.getMainNBT(entity);
+    if (!nbt.hasKey("groups")) {
+      var newGroupsList = manager.newTagList();
+      manager.setTagList(nbt, "groups", newGroupsList);
+    };
+    var groups = nbt.getTagList("groups");
+    var groupIndex = getGroupArray(entity).indexOf(groupName);
+    var members = system.getStringArray(groups.getCompoundTag(groupIndex).getStringList("members"));
+    var membersList = [];
+    if (groupIndex > -1) {
+      members.forEach(entry => {
+        membersList.push(entry);
+      });
+    };
+    return membersList;
+  };
   return {
     name: "groups",
     moduleMessageName: "Groups",
     type: 1,
     command: "g",
-    transerMenues: {
-      "group_editing": {
-        parent: "groups",
-        buttons: {
-          "groups_delete": {
-            borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
-            },
-            properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test groups delete");
-              }
-            }
-          },
-          "groups_edit": {
-            borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
-            },
-            properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test groups select");
-              }
-            }
-          },
-          "groups_add_member": {
-            borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
-            },
-            properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test groups add member");
-              }
-            }
-          },
-          "groups_rem_member": {
-            borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
-            },
-            properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test groups rem member");
-              }
-            }
-          }
-        }
-      },
+    transerMenus: {
       "groups": {
         parent: "main",
+        prevButton: "main_groups",
         buttons: {
-          "groups_add": {
+          "groups_edit": {
             borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
+              bottom: "groups_add",
             },
             properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test groups add");
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_select_0");
+              },
+              backAction: (entity, manager) => {
+                if (entity.getData("skyhighocs:dyn/entering_value")) {
+                  manager.setData(entity, "skyhighocs:dyn/entering_value", false);
+                } else {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "main_groups");
+                  manager.setData(entity, "skyhighocs:dyn/current_menu", "main");
+                };
+              },
+            }
+          },
+          "groups_add": {
+            borderingButtons: {
+              top: "groups_edit",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/entering_value", true);
+              },
+              backAction: (entity, manager) => {
+                if (entity.getData("skyhighocs:dyn/entering_value")) {
+                  manager.setData(entity, "skyhighocs:dyn/entering_value", false);
+                } else {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "main_groups");
+                  manager.setData(entity, "skyhighocs:dyn/current_menu", "main");
+                };
+              },
+              textAction: (entity, manager, entry) => {
+                addGroup(entity, manager, entry);
+                manager.setData(entity, "skyhighocs:dyn/entering_value", false);
+              },
+            }
+          },
+          "groups_delete": {
+            borderingButtons: {
+              top: "groups_members"
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                removeGroup(entity, manager, entity.getData("skyhighocs:dyn/list_entry"));
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_select_0");
+              },
+              backAction: (entity, manager) => {
+                var listValue = entity.getData("skyhighocs:dyn/list_value").toString();
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_select_" + listValue);
+              },
+            }
+          },
+          "groups_members": {
+            borderingButtons: {
+              bottom: "groups_delete"
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_edit");
+                manager.setData(entity, "skyhighocs:dyn/current_menu", "group_members");
+                manager.setData(entity, "skyhighocs:dyn/prev_list_entry", entity.getData("skyhighocs:dyn/list_entry"));
+                manager.setData(entity, "skyhighocs:dyn/prev_list_value", entity.getData("skyhighocs:dyn/list_value"));
+                var list = groupMembersList(entity, manager, entity.getData("skyhighocs:dyn/prev_list_entry"));
+                system.updateList(entity, manager, 7, list);
+              },
+              backAction: (entity, manager) => {
+                var listValue = entity.getData("skyhighocs:dyn/list_value").toString();
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_select_" + listValue);
+              },
+            }
+          },
+          "groups_select_0": {
+            borderingButtons: {
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 0);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_0"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_edit");
+              },
+              upAction: (entity, manager) => {
+                var list = groupsList(entity, manager);
+                manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+                var value = entity.getData("skyhighocs:dyn/scroll_value");
+                if (value > 0) {
+                  manager.setData(entity, "skyhighocs:dyn/scroll_value", entity.getData("skyhighocs:dyn/scroll_value")-1);
+                };
+                system.updateList(entity, manager, 7, list);
+              },
+              downAction: (entity, manager) => {
+                var list = groupsList(entity, manager);
+                if ((list.length) > 1) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_select_1");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 0);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_0"));
               }
             }
           },
           "groups_select_1": {
             borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
+              top: "groups_select_0",
             },
             properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test groups select 1");
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 1);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_1"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = groupsList(entity, manager);
+                if ((list.length) > 2) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_select_2");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 1);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_1"));
               }
             }
           },
           "groups_select_2": {
             borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
+              top: "groups_select_1",
             },
             properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test groups select 2");
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 2);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_2"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = groupsList(entity, manager);
+                if ((list.length) > 3) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_select_3");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 2);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_2"));
               }
             }
           },
           "groups_select_3": {
             borderingButtons: {
-              top: "",
-              bottom: "",
-              left: "",
-              right: "",
+              top: "groups_select_2",
             },
             properties: {
-              action: (entity, manager) => {
-                system.moduleMessage(this, entity, "Test groups select 3");
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 3);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_3"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = groupsList(entity, manager);
+                if ((list.length) > 4) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_select_4");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 3);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_3"));
+              }
+            }
+          },
+          "groups_select_4": {
+            borderingButtons: {
+              top: "groups_select_3",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 4);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_4"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = groupsList(entity, manager);
+                if ((list.length) > 5) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_select_5");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 4);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_4"));
+              }
+            }
+          },
+          "groups_select_5": {
+            borderingButtons: {
+              top: "groups_select_4",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 5);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_5"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = groupsList(entity, manager);
+                if ((list.length) > 6) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_select_6");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 5);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_5"));
+              }
+            }
+          },
+          "groups_select_6": {
+            borderingButtons: {
+              top: "groups_select_5",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 6);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_6"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = groupsList(entity, manager);
+                manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+                var value = entity.getData("skyhighocs:dyn/scroll_value");
+                if ((list.length-7) > value) {
+                  manager.setData(entity, "skyhighocs:dyn/scroll_value", entity.getData("skyhighocs:dyn/scroll_value")+1);
+                };
+                system.updateList(entity, manager, 7, list);
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 6);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_6"));
+              }
+            }
+          },
+          //Members submenu
+        }
+      },
+      "group_members": {
+        parent: "groups",
+        buttons: {
+          "groups_members_edit": {
+            borderingButtons: {
+              bottom: "groups_members_add",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_select_0");
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/current_menu", "groups");
+                var list = groupsList(entity, manager);
+                manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+                system.updateList(entity, manager, 7, list);
+                var listValue = entity.getData("skyhighocs:dyn/prev_list_value").toString();
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_select_" + listValue);
+              },
+            }
+          },
+          "groups_members_add": {
+            borderingButtons: {
+              top: "groups_members_edit",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/entering_value", true);
+              },
+              backAction: (entity, manager) => {
+                if (entity.getData("skyhighocs:dyn/entering_value")) {
+                  manager.setData(entity, "skyhighocs:dyn/entering_value", false);
+                } else {
+                  manager.setData(entity, "skyhighocs:dyn/current_menu", "groups");
+                  var list = groupsList(entity, manager);
+                  manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+                  system.updateList(entity, manager, 7, list);
+                  var listValue = entity.getData("skyhighocs:dyn/prev_list_value").toString();
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_select_" + listValue);
+                };
+              },
+              textAction: (entity, manager, entry) => {
+                addGroupMember(entity, manager, entity.getData("skyhighocs:dyn/prev_list_entry"), entry);
+                manager.setData(entity, "skyhighocs:dyn/entering_value", false);
+              },
+            }
+          },
+          "groups_members_delete": {
+            borderingButtons: {
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                removeGroupMember(entity, manager, entity.getData("skyhighocs:dyn/prev_list_entry"), entity.getData("skyhighocs:dyn/list_entry"));
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_select_0");
+              },
+              backAction: (entity, manager) => {
+                var listValue = entity.getData("skyhighocs:dyn/list_value").toString();
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_select_" + listValue);
+              },
+            }
+          },
+          "groups_members_select_0": {
+            borderingButtons: {
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 0);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_0"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_edit");
+              },
+              upAction: (entity, manager) => {
+                var list = groupMembersList(entity, manager, entity.getData("skyhighocs:dyn/prev_list_entry"));
+                manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+                var value = entity.getData("skyhighocs:dyn/scroll_value");
+                if (value > 0) {
+                  manager.setData(entity, "skyhighocs:dyn/scroll_value", entity.getData("skyhighocs:dyn/scroll_value")-1);
+                };
+                system.updateList(entity, manager, 7, list);
+              },
+              downAction: (entity, manager) => {
+                var list = groupMembersList(entity, manager, entity.getData("skyhighocs:dyn/prev_list_entry"));
+                if ((list.length) > 1) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_select_1");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 0);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_0"));
+              }
+            }
+          },
+          "groups_members_select_1": {
+            borderingButtons: {
+              top: "groups_members_select_0",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 1);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_1"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = groupMembersList(entity, manager, entity.getData("skyhighocs:dyn/prev_list_entry"));
+                if ((list.length) > 2) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_select_2");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 1);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_1"));
+              }
+            }
+          },
+          "groups_members_select_2": {
+            borderingButtons: {
+              top: "groups_members_select_1",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 2);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_2"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = groupMembersList(entity, manager, entity.getData("skyhighocs:dyn/prev_list_entry"));
+                if ((list.length) > 3) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_select_3");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 2);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_2"));
+              }
+            }
+          },
+          "groups_members_select_3": {
+            borderingButtons: {
+              top: "groups_members_select_2",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 3);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_3"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = groupMembersList(entity, manager, entity.getData("skyhighocs:dyn/prev_list_entry"));
+                if ((list.length) > 4) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_select_4");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 3);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_3"));
+              }
+            }
+          },
+          "groups_members_select_4": {
+            borderingButtons: {
+              top: "groups_members_select_3",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 4);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_4"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = groupMembersList(entity, manager, entity.getData("skyhighocs:dyn/prev_list_entry"));
+                if ((list.length) > 5) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_select_5");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 4);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_4"));
+              }
+            }
+          },
+          "groups_members_select_5": {
+            borderingButtons: {
+              top: "groups_members_select_4",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 5);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_5"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = groupMembersList(entity, manager, entity.getData("skyhighocs:dyn/prev_list_entry"));
+                if ((list.length) > 6) {
+                  manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_select_6");
+                };
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 5);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_5"));
+              }
+            }
+          },
+          "groups_members_select_6": {
+            borderingButtons: {
+              top: "groups_members_select_5",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_delete");
+                manager.setData(entity, "skyhighocs:dyn/list_value", 6);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_6"));
+              },
+              backAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_members_edit");
+              },
+              downAction: (entity, manager) => {
+                var list = groupsMembersList(entity);
+                manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+                var value = entity.getData("skyhighocs:dyn/scroll_value");
+                if ((list.length-7) > value) {
+                  manager.setData(entity, "skyhighocs:dyn/scroll_value", entity.getData("skyhighocs:dyn/scroll_value")+1);
+                };
+                system.updateList(entity, manager, 7, list);
+              },
+              selectAction: (entity, manager) => {
+                manager.setData(entity, "skyhighocs:dyn/list_value", 6);
+                manager.setData(entity, "skyhighocs:dyn/list_entry", entity.getData("skyhighocs:dyn/scroll_entry_6"));
               }
             }
           }
         }
       }
     },
-    transerButton: {
+    transerMainButton: {
+      buttonID: "main_groups",
       borderingButtons: {
+        top: "main_Brother",
         bottom: "main_settings",
         left: "main_contacts",
-        right: "main_BrotherBand",
+        right: "main_waypoints",
       },
       properties: {
-        action: (entity, manager) => {
+        confirmAction: (entity, manager) => {
           manager.setData(entity, "skyhighocs:dyn/current_menu", "groups");
+          manager.setData(entity, "skyhighocs:dyn/selected_button", "groups_edit");
+          var list = groupsList(entity, manager);
+          manager.setData(entity, "skyhighocs:dyn/list_total", list.length);
+          manager.setData(entity, "skyhighocs:dyn/scroll_value", 0);
+          manager.setData(entity, "skyhighocs:dyn/scroll_total", Math.max(list.length-7, 0));
+          system.updateList(entity, manager, 7, list);
+        },
+        backAction: (entity, manager) => {
+          manager.setData(entity, "skyhighocs:dyn/transer", false);
         }
       }
     },

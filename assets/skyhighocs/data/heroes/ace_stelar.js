@@ -75,7 +75,10 @@ function init(hero) {
       return !entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/wave_changing_timer") == 0 && entity.getUUID() == transer.getCompatibleUUID(entity) && entity.isSneaking() && entity.getData("skyhighocs:dyn/stelar_clothes") == 3;
     };
     if (keyBind == "SHAPE_SHIFT") {
-      return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && transer.canUseTranser(entity);
+      return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && transer.canUseTranser(entity) && (!transerOS.isTelekinesisButton(entity) || (transerOS.isTelekinesisButton(entity) && !entity.getData("skyhighocs:dyn/entering_value")));
+    };
+    if (keyBind == "TELEKINESIS") {
+      return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && transer.canUseTranser(entity) && transerOS.isTelekinesisButton(entity) && entity.getData("skyhighocs:dyn/entering_value");
     };
     if (keyBind == "CONFIRM") {
       return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && transer.canUseTranser(entity);

@@ -122,11 +122,11 @@ function initModule(system) {
       };
       manager.setData(entity, "skyhighocs:dyn/hud_top_border", nbt.getInteger("hudTopBorder"));
       if (!nbt.hasKey("nightVision")) {
-        manager.setFloat(nbt, "nightVision", false);
+        manager.setBoolean(nbt, "nightVision", false);
       };
       manager.setData(entity, "skyhighocs:dyn/night_vision", nbt.getBoolean("nightVision"));
       if (!nbt.hasKey("aliasActive")) {
-        manager.setFloat(nbt, "aliasActive", false);
+        manager.setBoolean(nbt, "aliasActive", false);
       };
       manager.setData(entity, "skyhighocs:dyn/alias_active", nbt.getBoolean("aliasActive"));
     }

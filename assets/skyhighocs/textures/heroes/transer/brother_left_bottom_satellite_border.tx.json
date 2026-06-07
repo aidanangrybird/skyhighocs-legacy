@@ -1,0 +1,10 @@
+{
+  "texture": "skyhighocs:transer/<SATELLITE>_color_1",
+  "getters": {
+    "SATELLITE": {
+      "key": "entity.getData('skyhighocs:dyn/scroll_entry_5').split(';:').length > 1 ? (entity.getData('skyhighocs:dyn/scroll_entry_5').split(';:')[1].toLowerCase() == 'pegasus' ? 'pegasus' : entity.getData('skyhighocs:dyn/scroll_entry_5').split(';:')[1].toLowerCase() == 'leo' ? 'leo' : entity.getData('skyhighocs:dyn/scroll_entry_5').split(';:')[1].toLowerCase() == 'dragon' ? 'dragon' : 'pegasus') : 'pegasus'",
+      "values": ["pegasus", "leo", "dragon"]
+    }
+  },
+  "isDynamic": true
+}

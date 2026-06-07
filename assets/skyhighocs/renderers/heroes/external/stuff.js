@@ -459,7 +459,7 @@ var charWidths = {
   "}": 3.0,
   "~": 6.0,
   " ": 4.0,
-}
+};
 
 function text(renderer, name) {
   var characterModels = [];
@@ -488,51 +488,56 @@ function text(renderer, name) {
   return {
     renderLine: (isFirstPersonArm, horizontalAlignment, verticalAlignment, text, posX, posY, posZ, scale) => {
       if (isFirstPersonArm && text != null && typeof text === "string") {
-        var textCharacters = text.toString().split("");
-        var currentPosX = 0.0;
-        var overallOffsetPosX = 0.0;
-        var overallOffsetPosY = 0.0;
-        textCharacters.forEach(textCharacter => {
-          if (charWidths.hasOwnProperty(textCharacter)) {
-            overallOffsetPosX = overallOffsetPosX + charWidths[textCharacter]*scale + 1.0*scale;
+        var lines = text.split("\n");
+        if (lines.length > 1) {
+          this.renderLines(isFirstPersonArm, horizontalAlignment, verticalAlignment, lines, posX, posY, posZ, scale)
+        } else {
+          var textCharacters = text.toString().split("");
+          var currentPosX = 0.0;
+          var overallOffsetPosX = 0.0;
+          var overallOffsetPosY = 0.0;
+          textCharacters.forEach(textCharacter => {
+            if (charWidths.hasOwnProperty(textCharacter)) {
+              overallOffsetPosX = overallOffsetPosX + charWidths[textCharacter]*scale + 1.0*scale;
+            };
+          });
+          switch (horizontalAlignment.toLowerCase()) {
+            case "center":
+              overallOffsetPosX = overallOffsetPosX/2;
+              break;
+            case "left":
+              overallOffsetPosX = 0.0;
+              break;
+            case "right":
+              overallOffsetPosX = overallOffsetPosX;
+              break;
           };
-        });
-        switch (horizontalAlignment.toLowerCase()) {
-          case "center":
-            overallOffsetPosX = overallOffsetPosX/2;
-            break;
-          case "left":
-            overallOffsetPosX = 0.0;
-            break;
-          case "right":
-            overallOffsetPosX = overallOffsetPosX;
-            break;
+          switch (verticalAlignment.toLowerCase()) {
+            case "center":
+              overallOffsetPosY = 0.0;
+              break;
+            case "top":
+              overallOffsetPosY = 5.5;
+              break;
+            case "bottom":
+              overallOffsetPosY = -5.5;
+              break;
+          };
+          textCharacters.forEach(textCharacter => {
+            var index = chars.indexOf(textCharacter);
+            if (index > -1) {
+              var model = characterModels[index];
+              model.setRotation(0, 0, 0);
+              model.setOffset(posX+currentPosX-overallOffsetPosX, posY+overallOffsetPosY, posZ);
+              model.setScale(scale);
+              model.render();
+              currentPosX = currentPosX + charWidths[textCharacter]*scale + 1.0*scale;
+            };
+            if (textCharacter == " ") {
+              currentPosX = currentPosX + charWidths[textCharacter]*scale + 1.0*scale;
+            };
+          });
         };
-        switch (verticalAlignment.toLowerCase()) {
-          case "center":
-            overallOffsetPosY = 0.0;
-            break;
-          case "top":
-            overallOffsetPosY = -5.5;
-            break;
-          case "bottom":
-            overallOffsetPosY = 5.5;
-            break;
-        };
-        textCharacters.forEach(textCharacter => {
-          var index = chars.indexOf(textCharacter);
-          if (index > -1) {
-            var model = characterModels[index];
-            model.setRotation(0, 0, 0);
-            model.setOffset(posX+currentPosX-overallOffsetPosX, posY+overallOffsetPosY, posZ);
-            model.setScale(scale);
-            model.render();
-            currentPosX = currentPosX + charWidths[textCharacter]*scale + 1.0*scale;
-          };
-          if (textCharacter == " ") {
-            currentPosX = currentPosX + charWidths[textCharacter]*scale + 1.0*scale;
-          };
-        });
       };
     },
     renderLines: (isFirstPersonArm, horizontalAlignment, verticalAlignment, textArray, posX, posY, posZ, scale) => {
@@ -695,99 +700,7 @@ function text(renderer, name) {
           data.push("Angle to entity: " + entityBearing.toFixed(2));
           //data.push("Pitch difference: " + pitch.toFixed(2));
           var distanceScale = scale + (1/clamp(distance, 1.0, 1024.0))*scale;
-          var overallPosY = 0.0;
-          var totalHeight = 11.0*((data.length-1)*1.0);
-          var overallPosX = 0.0;
-          var largestLineLength = 0.0;
-          //Overall X position
-          data.forEach(line => {
-            if (line != null) {
-              var textCharacters = line.toString().split("");
-              var lineLength = 0.0;
-              textCharacters.forEach(textCharacter => {
-                if (charWidths.hasOwnProperty(textCharacter)) {
-                  lineLength = lineLength + charWidths[textCharacter]*distanceScale + 1.0*distanceScale;
-                };
-                if (largestLineLength < lineLength) {
-                  largestLineLength = lineLength;
-                };
-              });
-            };
-          });
-          switch (horizontalAlignment.toLowerCase()) {
-            case "center":
-              overallPosX = largestLineLength/2;
-              break;
-            case "left":
-              overallPosX = 0.0;
-              break;
-            case "right":
-              overallPosX = largestLineLength;
-              break;
-            default:
-              overallPosX = 0.0;
-              break;
-          };
-          switch (verticalAlignment.toLowerCase()) {
-            case "center":
-              overallPosY = totalHeight/2;
-              break;
-            case "top":
-              overallPosY = 0.0;
-              break;
-            case "bottom":
-              overallPosY = -1*totalHeight;
-              break;
-            default:
-              overallPosY = 0.0;
-              break;
-          };
-          //Per line X position
-          var currentPosY = 0.0;
-          data.forEach(line => {
-            if (line != null) {
-              var textCharacters = line.toString().split("");
-              var currentPosX = 0.0;
-              var lineLength = 0.0;
-              var linePosX = 0.0;
-              textCharacters.forEach(textCharacter => {
-                if (charWidths.hasOwnProperty(textCharacter)) {
-                  lineLength = lineLength + charWidths[textCharacter]*distanceScale + 1.0*distanceScale;
-                };
-              });
-              switch (horizontalAlignment.toLowerCase()) {
-                case "center":
-                  var difference = largestLineLength - lineLength;
-                  linePosX = difference/2;
-                  break;
-                case "left":
-                  linePosX = 0.0;
-                  break;
-                case "right":
-                  var difference = lineLength - largestLineLength;
-                  linePosX = -1*difference;
-                  break;
-                default:
-                  linePosX = 0.0;
-                  break;
-              };
-              textCharacters.forEach(textCharacter => {
-                var index = chars.indexOf(textCharacter);
-                if (index > -1) {
-                  var model = characterModels[index];
-                  model.setRotation(0, 0, 0);
-                  model.setOffset(x+currentPosX-overallPosX+linePosX, y+currentPosY-overallPosY, z);
-                  model.setScale(distanceScale);
-                  model.render();
-                  currentPosX = currentPosX + charWidths[textCharacter]*distanceScale + 1.0*distanceScale;
-                };
-                if (textCharacter == " ") {
-                  currentPosX = currentPosX + charWidths[textCharacter]*distanceScale + 1.0*distanceScale;
-                };
-              });
-            };
-            currentPosY = currentPosY + 11.0*distanceScale;
-          });
+          this.renderLines(isFirstPersonArm, horizontalAlignment, verticalAlignment, data, x, y, z, distanceScale);
         };
       };
     }
@@ -885,11 +798,11 @@ function screenElement(renderer, elementName, verticalAlignment, horizontalAlign
       baseSizeX = parentSizeY*(percent/100.0);
     };
     if (sizeX.endsWith("pmw")) {
-      var margin = parseFloat(sizeX.split("pmw")[0]);
+      var margin = parseFloat(sizeX.split("pmw")[0])*2;
       baseSizeX = parentSizeX-margin;
     };
     if (sizeX.endsWith("pmh")) {
-      var margin = parseFloat(sizeX.split("pmh")[0]);
+      var margin = parseFloat(sizeX.split("pmh")[0])*2;
       baseSizeX = parentSizeY-margin;
     };
   } else {
@@ -905,11 +818,11 @@ function screenElement(renderer, elementName, verticalAlignment, horizontalAlign
       baseSizeY = parentSizeY*(percent/100.0);
     };
     if (sizeY.endsWith("pmw")) {
-      var margin = parseFloat(sizeY.split("pmw")[0]);
+      var margin = parseFloat(sizeY.split("pmw")[0])*2;
       baseSizeY = parentSizeX-margin;
     };
     if (sizeY.endsWith("pmh")) {
-      var margin = parseFloat(sizeY.split("pmh")[0]);
+      var margin = parseFloat(sizeY.split("pmh")[0])*2;
       baseSizeY = parentSizeY-margin;
     };
   } else {
@@ -1133,7 +1046,7 @@ function screenElementHead(renderer, elementName, verticalAlignment, horizontalA
   baseY = offsetY+sizeCorrectionY+parentAnchorY;
   baseZ = offsetZ+parentZ;
   screen_element_model.setOffset(baseX, baseY, baseZ);
-  baseZ = offsetZ+parentZ+0.02;
+  baseZ = offsetZ+parentZ+0.01;
   var leftXBound = baseX-(baseSizeX/2);
   var centerX = baseX;
   var rightXBound = baseX+(baseSizeX/2);
@@ -1173,15 +1086,21 @@ function screenElementHead(renderer, elementName, verticalAlignment, horizontalA
  * @param {number} offsetY - Y offset
  * @param {number} offsetZ - Z offset
  **/
-function screenVerticalScrollBar(renderer, elementName, paddingX, paddingY, sizeX, sizeY, offsetX, offsetY, offsetZ) {
-  var originalBarSizeX = sizeX-paddingX;
-  var originalBarSizeY = sizeY-paddingY;
-  var scrollBarBase = screenElement(renderer, elementName, "center", "center", sizeX, sizeY, offsetX, offsetY, offsetZ);
-  var scrollBar = screenElement(renderer, elementName+"_bar", "center", "center", sizeX-paddingX, sizeY-paddingY, 0.0, 0.0, 0.0, scrollBarBase, "center");
-  var originalBarX = scrollBar.x;
-  var originalBarY = scrollBar.y;
-  var originalBarTop = scrollBar.topY;
-  var originalBarBottom = scrollBar.bottomY;
+function screenVerticalScrollBar(renderer, elementName, sizeX, sizeY, offsetX, offsetY, offsetZ, parentElement, parentElementAnchor) {
+  var paddingX = 2.0;
+  var paddingY = 2.0;
+  var scrollBarBase = screenElement(renderer, elementName+"_outer", "center", "center", sizeX, sizeY, offsetX, offsetY, offsetZ, parentElement, parentElementAnchor);
+  var originalBarSizeX = scrollBarBase.sizeX-paddingX;
+  var originalBarSizeY = scrollBarBase.sizeY-paddingY;
+  var scrollBarBaseMiddle = screenElement(renderer, elementName+"_middle", "center", "center", "1pmw", "1pmh", 0.0, 0.0, 0.0, scrollBarBase, "center");
+  var scrollBarBaseInner = screenElement(renderer, elementName+"_inner", "center", "center", "2.5pmw", "2.5pmh", 0.0, 0.0, 0.0, scrollBarBaseMiddle, "center");
+  //Bar
+  var scrollBarOuter = screenElement(renderer, elementName+"_bar_outer", "center", "center", "1pmw", "1pmh", 0.0, 0.0, 0.0, scrollBarBaseMiddle, "center");
+  var scrollBarInner = screenElement(renderer, elementName+"_bar_inner", "center", "center", "1pmw", "1pmh", 0.0, 0.0, 0.0, scrollBarOuter, "center");
+  var originalBarX = scrollBarOuter.x;
+  var originalBarY = scrollBarOuter.y;
+  var originalBarTop = scrollBarOuter.topY;
+  var originalBarBottom = scrollBarOuter.bottomY;
   return {
     baseModel: scrollBarBase.model,
     baseModelX: scrollBarBase.x,
@@ -1189,48 +1108,103 @@ function screenVerticalScrollBar(renderer, elementName, paddingX, paddingY, size
     baseModelZ: scrollBarBase.z,
     baseModelSizeX: scrollBarBase.sizeX,
     baseModelSizeY: scrollBarBase.sizeY,
-    barModel: scrollBar.model,
-    barModelX: scrollBar.x,
-    barModelY: scrollBar.y,
-    barModelZ: scrollBar.z,
-    barModelSizeX: scrollBar.sizeX,
-    barModelSizeY: scrollBar.sizeY,
+    barModel: scrollBarOuter.model,
+    barModelX: scrollBarOuter.x,
+    barModelY: scrollBarOuter.y,
+    barModelZ: scrollBarOuter.z,
+    barModelSizeX: scrollBarOuter.sizeX,
+    barModelSizeY: scrollBarOuter.sizeY,
     render: (isFirstPersonArm, selected, total) => {
       if (isFirstPersonArm) {
         var selectedValue = selected;
         var totalValue = ((total == 0) ? 1 : total);
-        var barSize = originalBarSizeY/totalValue;
+        var barSize = originalBarSizeY/((total == 0) ? 1 : (total+1));
         var barTopLimit = originalBarTop-(paddingY/2)+(barSize/2);
         var barBottomLimit = originalBarBottom+(paddingY/2)-(barSize/2);
         var barSpace = Math.abs(barTopLimit-barBottomLimit);
         scrollBarBase.render(isFirstPersonArm);
-        scrollBar.model.setScale(originalBarSizeX, barSize, 1.0);
+        scrollBarBaseMiddle.render(isFirstPersonArm);
+        scrollBarBaseInner.render(isFirstPersonArm);
+        scrollBarOuter.model.setScale(originalBarSizeX, barSize, 1.0);
+        scrollBarInner.model.setScale(originalBarSizeX-3.0, barSize-3.0, 1.0);
         var progress = (barTopLimit)+(barSpace*(selectedValue/totalValue));
-        scrollBar.model.setOffset(originalBarX, progress, scrollBar.z);
-        scrollBar.render(isFirstPersonArm);
+        scrollBarOuter.model.setOffset(originalBarX, progress, scrollBarOuter.z);
+        scrollBarInner.model.setOffset(originalBarX, progress, scrollBarOuter.z+0.01);
+        scrollBarOuter.render(isFirstPersonArm);
+        scrollBarInner.render(isFirstPersonArm);
       };
     }
   };
 };
 
-function screenSelecter(renderer, elementName, parentElement, thickness) {
+function screenSelector(renderer, elementName, verticalAlignment, horizontalAlignment, sizeX, sizeY, offsetX, offsetY, offsetZ, parentElement, parentElementAnchor) {
+  var selector = screenElement(renderer, elementName, verticalAlignment, horizontalAlignment, sizeX, sizeY, offsetX, offsetY, offsetZ, parentElement, parentElementAnchor);
+  return {
+    model: selector.model,
+    x: selector.x,
+    y: selector.y,
+    z: selector.z,
+    sizeX: selector.sizeX,
+    sizeY: selector.sizeY,
+    leftX: selector.leftX,
+    centerX: selector.centerX,
+    rightX: selector.rightX,
+    topY: selector.topY,
+    centerY: selector.centerY,
+    bottomY: selector.bottomY,
+    render: (entity, isFirstPersonArm, change) => {
+      if (isFirstPersonArm) {
+        var timer = entity.loop(10);
+        var value = change*animate2(timer, 1.0, 0.0, 0.7, 0.3);
+        selector.model.setOffset(selector.x+change-value, selector.y, selector.z);
+        selector.render(isFirstPersonArm);
+      };
+    }
+  };
+};
+
+function screenCornerSelecter(renderer, elementName, parentElement, thickness) {
   var topLeftBase = screenElement(renderer, elementName, "center", "center", thickness, thickness, 0.0, 0.0, 0.0, parentElement, "topLeft");
+  var topLeftBaseOff = screenElement(renderer, elementName+"_off", "center", "center", "60pw", "60ph", 0.0, 0.0, 0.0, topLeftBase, "center");
+  var topLeftBaseOn = screenElement(renderer, elementName+"_on", "center", "center", "60pw", "60ph", 0.0, 0.0, 0.0, topLeftBase, "center");
   var topLeftLeft = screenElement(renderer, elementName, "top", "center", thickness, 5.0, 0.0, 0.0, 0.0, topLeftBase, "bottomCenter");
+  var topLeftLeftOff = screenElement(renderer, elementName+"_off", "top", "center", "100pw", ((topLeftBase.sizeX-topLeftBaseOff.sizeX)/2)+5.0, 0.0, 0.0, 0.01, topLeftBaseOff, "bottomCenter");
+  var topLeftLeftOn = screenElement(renderer, elementName+"_on", "top", "center", "100pw", ((topLeftBase.sizeX-topLeftBaseOn.sizeX)/2)+5.0, 0.0, 0.0, 0.01, topLeftBaseOn, "bottomCenter");
   var topLeftTop = screenElement(renderer, elementName, "center", "left", 5.0, thickness, 0.0, 0.0, 0.0, topLeftBase, "centerRight");
+  var topLeftTopOff = screenElement(renderer, elementName+"_off", "center", "left", ((topLeftBase.sizeY-topLeftBaseOff.sizeY)/2)+5.0, "100ph", 0.0, 0.0, 0.01, topLeftBaseOff, "centerRight");
+  var topLeftTopOn = screenElement(renderer, elementName+"_on", "center", "left", ((topLeftBase.sizeY-topLeftBaseOn.sizeY)/2)+5.0, "100ph", 0.0, 0.0, 0.01, topLeftBaseOn, "centerRight");
   
   var topRightBase = screenElement(renderer, elementName, "center", "center", thickness, thickness, 0.0, 0.0, 0.0, parentElement, "topRight");
+  var topRightBaseOff = screenElement(renderer, elementName+"_off", "center", "center", "60pw", "60ph", 0.0, 0.0, 0.0, topRightBase, "center");
+  var topRightBaseOn = screenElement(renderer, elementName+"_on", "center", "center", "60pw", "60ph", 0.0, 0.0, 0.0, topRightBase, "center");
   var topRightRight = screenElement(renderer, elementName, "top", "center", thickness, 5.0, 0.0, 0.0, 0.0, topRightBase, "bottomCenter");
+  var topRightRightOff = screenElement(renderer, elementName+"_off", "top", "center", "100pw", ((topRightBase.sizeX-topRightBaseOff.sizeX)/2)+5.0, 0.0, 0.0, 0.01, topRightBaseOff, "bottomCenter");
+  var topRightRightOn = screenElement(renderer, elementName+"_on", "top", "center", "100pw", ((topRightBase.sizeX-topRightBaseOn.sizeX)/2)+5.0, 0.0, 0.0, 0.01, topRightBaseOn, "bottomCenter");
   var topRightTop = screenElement(renderer, elementName, "center", "right", 5.0, thickness, 0.0, 0.0, 0.0, topRightBase, "centerLeft");
+  var topRightTopOff = screenElement(renderer, elementName+"_off", "center", "right", ((topRightBase.sizeY-topRightBaseOff.sizeY)/2)+5.0, "100ph", 0.0, 0.0, 0.01, topRightBaseOff, "centerLeft");
+  var topRightTopOn = screenElement(renderer, elementName+"_on", "center", "right", ((topRightBase.sizeY-topRightBaseOn.sizeY)/2)+5.0, "100ph", 0.0, 0.0, 0.01, topRightBaseOn, "centerLeft");
 
   var bottomLeftBase = screenElement(renderer, elementName, "center", "center", thickness, thickness, 0.0, 0.0, 0.0, parentElement, "bottomLeft");
+  var bottomLeftBaseOff = screenElement(renderer, elementName+"_off", "center", "center", "60pw", "60ph", 0.0, 0.0, 0.0, bottomLeftBase, "center");
+  var bottomLeftBaseOn = screenElement(renderer, elementName+"_on", "center", "center", "60pw", "60ph", 0.0, 0.0, 0.0, bottomLeftBase, "center");
   var bottomLeftLeft = screenElement(renderer, elementName, "bottom", "center", thickness, 5.0, 0.0, 0.0, 0.0, bottomLeftBase, "topCenter");
+  var bottomLeftLeftOff = screenElement(renderer, elementName+"_off", "bottom", "center", "100pw", ((bottomLeftBase.sizeX-bottomLeftBaseOff.sizeX)/2)+5.0, 0.0, 0.0, 0.01, bottomLeftBaseOff, "topCenter");
+  var bottomLeftLeftOn = screenElement(renderer, elementName+"_on", "bottom", "center", "100pw", ((bottomLeftBase.sizeX-bottomLeftBaseOn.sizeX)/2)+5.0, 0.0, 0.0, 0.01, bottomLeftBaseOn, "topCenter");
   var bottomLeftBottom = screenElement(renderer, elementName, "center", "left", 5.0, thickness, 0.0, 0.0, 0.0, bottomLeftBase, "centerRight");
+  var bottomLeftBottomOff = screenElement(renderer, elementName+"_off", "center", "left", ((bottomLeftBase.sizeY-bottomLeftBaseOff.sizeY)/2)+5.0, "100ph", 0.0, 0.0, 0.01, bottomLeftBaseOff, "centerRight");
+  var bottomLeftBottomOn = screenElement(renderer, elementName+"_on", "center", "left", ((bottomLeftBase.sizeY-bottomLeftBaseOn.sizeY)/2)+5.0, "100ph", 0.0, 0.0, 0.01, bottomLeftBaseOn, "centerRight");
   
   var bottomRightBase = screenElement(renderer, elementName, "center", "center", thickness, thickness, 0.0, 0.0, 0.0, parentElement, "bottomRight");
+  var bottomRightBaseOff = screenElement(renderer, elementName+"_off", "center", "center", "60pw", "60ph", 0.0, 0.0, 0.0, bottomRightBase, "center");
+  var bottomRightBaseOn = screenElement(renderer, elementName+"_on", "center", "center", "60pw", "60ph", 0.0, 0.0, 0.0, bottomRightBase, "center");
   var bottomRightRight = screenElement(renderer, elementName, "bottom", "center", thickness, 5.0, 0.0, 0.0, 0.0, bottomRightBase, "topCenter");
+  var bottomRightRightOff = screenElement(renderer, elementName+"_off", "bottom", "center", "100pw", ((bottomRightBase.sizeX-bottomRightBaseOff.sizeX)/2)+5.0, 0.0, 0.0, 0.01, bottomRightBaseOff, "topCenter");
+  var bottomRightRightOn = screenElement(renderer, elementName+"_on", "bottom", "center", "100pw", ((bottomRightBase.sizeX-bottomRightBaseOn.sizeX)/2)+5.0, 0.0, 0.0, 0.01, bottomRightBaseOn, "topCenter");
   var bottomRightBottom = screenElement(renderer, elementName, "center", "right", 5.0, thickness, 0.0, 0.0, 0.0, bottomRightBase, "centerLeft");
+  var bottomRightBottomOff = screenElement(renderer, elementName+"_off", "center", "right", ((bottomRightBase.sizeY-bottomRightBaseOff.sizeY)/2)+5.0, "100ph", 0.0, 0.0, 0.01, bottomRightBaseOff, "centerLeft");
+  var bottomRightBottomOn = screenElement(renderer, elementName+"_on", "center", "right", ((bottomRightBase.sizeY-bottomRightBaseOn.sizeY)/2)+5.0, "100ph", 0.0, 0.0, 0.01, bottomRightBaseOn, "centerLeft");
   return {
-    render: (isFirstPersonArm) => {
+    render: (entity, isFirstPersonArm) => {
       if (isFirstPersonArm) {
         topLeftBase.render(isFirstPersonArm);
         topLeftLeft.render(isFirstPersonArm);
@@ -1244,6 +1218,84 @@ function screenSelecter(renderer, elementName, parentElement, thickness) {
         bottomRightBase.render(isFirstPersonArm);
         bottomRightRight.render(isFirstPersonArm);
         bottomRightBottom.render(isFirstPersonArm);
+        if (entity.loop(10) > 0.5) {
+          topLeftBaseOn.render(isFirstPersonArm);
+          topLeftLeftOn.render(isFirstPersonArm);
+          topLeftTopOn.render(isFirstPersonArm);
+          topRightBaseOn.render(isFirstPersonArm);
+          topRightRightOn.render(isFirstPersonArm);
+          topRightTopOn.render(isFirstPersonArm);
+          bottomLeftBaseOn.render(isFirstPersonArm);
+          bottomLeftLeftOn.render(isFirstPersonArm);
+          bottomLeftBottomOn.render(isFirstPersonArm);
+          bottomRightBaseOn.render(isFirstPersonArm);
+          bottomRightRightOn.render(isFirstPersonArm);
+          bottomRightBottomOn.render(isFirstPersonArm);
+        } else {
+          topLeftBaseOff.render(isFirstPersonArm);
+          topLeftLeftOff.render(isFirstPersonArm);
+          topLeftTopOff.render(isFirstPersonArm);
+          topRightBaseOff.render(isFirstPersonArm);
+          topRightRightOff.render(isFirstPersonArm);
+          topRightTopOff.render(isFirstPersonArm);
+          bottomLeftBaseOff.render(isFirstPersonArm);
+          bottomLeftLeftOff.render(isFirstPersonArm);
+          bottomLeftBottomOff.render(isFirstPersonArm);
+          bottomRightBaseOff.render(isFirstPersonArm);
+          bottomRightRightOff.render(isFirstPersonArm);
+          bottomRightBottomOff.render(isFirstPersonArm);
+        };
+      };
+    }
+  }
+};
+
+function screenBoxSelecter(renderer, elementName, parentElement, thickness) {
+  var topOff = screenElement(renderer, elementName+"_off", "bottom", "center", parentElement.sizeX+(thickness*2.0), thickness, 0.0, 0.0, 0.0, parentElement, "topCenter");
+  var topOn = screenElement(renderer, elementName+"_on", "bottom", "center", parentElement.sizeX+(thickness*2.0), thickness, 0.0, 0.0, 0.0, parentElement, "topCenter");
+
+  var bottomOff = screenElement(renderer, elementName+"_off", "top", "center", parentElement.sizeX+(thickness*2.0), thickness, 0.0, 0.0, 0.0, parentElement, "bottomCenter");
+  var bottomOn = screenElement(renderer, elementName+"_on", "top", "center", parentElement.sizeX+(thickness*2.0), thickness, 0.0, 0.0, 0.0, parentElement, "bottomCenter");
+  
+  var leftOff = screenElement(renderer, elementName+"_off", "center", "right", thickness, parentElement.sizeY+(thickness*2.0), 0.0, 0.0, 0.0, parentElement, "centerLeft");
+  var leftOn = screenElement(renderer, elementName+"_on", "center", "right", thickness, parentElement.sizeY+(thickness*2.0), 0.0, 0.0, 0.0, parentElement, "centerLeft");
+  
+  var rightOff = screenElement(renderer, elementName+"_off", "center", "left", thickness, parentElement.sizeY+(thickness*2.0), 0.0, 0.0, 0.0, parentElement, "centerRight");
+  var rightOn = screenElement(renderer, elementName+"_on", "center", "left", thickness, parentElement.sizeY+(thickness*2.0), 0.0, 0.0, 0.0, parentElement, "centerRight");
+  return {
+    render: (entity, isFirstPersonArm) => {
+      if (isFirstPersonArm) {
+        if (entity.loop(20) > 0.5) {
+          topOn.render(isFirstPersonArm);
+          bottomOn.render(isFirstPersonArm);
+          leftOn.render(isFirstPersonArm);
+          rightOn.render(isFirstPersonArm);
+        } else {
+          topOff.render(isFirstPersonArm);
+          bottomOff.render(isFirstPersonArm);
+          leftOff.render(isFirstPersonArm);
+          rightOff.render(isFirstPersonArm);
+        };
+      };
+    }
+  }
+};
+
+function screenBox(renderer, elementName, parentElement, thickness, margin) {
+  var top = screenElement(renderer, elementName, "top", "center", "5pmw", "5ph", 0.0, 0.0, 0.0, parentElement, "topCenter");
+
+  var bottom = screenElement(renderer, elementName, "bottom", "center", "5pmw", "5ph", 0.0, 0.0, 0.0, parentElement, "bottomCenter");
+  
+  var left = screenElement(renderer, elementName, "center", "left", "5pw", "5pmh", 0.0, 0.0, 0.0, parentElement, "centerLeft");
+  
+  var right = screenElement(renderer, elementName, "center", "right", "5pw", "5pmh", 0.0, 0.0, 0.0, parentElement, "centerRight");
+  return {
+    render: (entity, isFirstPersonArm) => {
+      if (isFirstPersonArm) {
+        top.render(isFirstPersonArm);
+        bottom.render(isFirstPersonArm);
+        left.render(isFirstPersonArm);
+        right.render(isFirstPersonArm);
       };
     }
   }
