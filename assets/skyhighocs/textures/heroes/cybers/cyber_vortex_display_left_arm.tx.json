@@ -1,0 +1,12 @@
+{
+  "texture": {
+    "in": "skyhighocs:cybers/cyber_vortex_full",
+    "transform": [
+      {
+        "operation": "STITCH",
+        "supply": "skyhighocs:display_left_arm"
+      }
+    ],
+    "out": "skyhighocs:generated/cyber_vortex_display_left_arm"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "texture": {
+    "in": "skyhighocs:cybers/cyber_flame_full",
+    "transform": [
+      {
+        "operation": "STITCH",
+        "supply": "skyhighocs:display_right_arm"
+      }
+    ],
+    "out": "skyhighocs:generated/cyber_flame_display_right_arm"
+  }
+}

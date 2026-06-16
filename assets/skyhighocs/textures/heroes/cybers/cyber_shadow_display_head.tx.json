@@ -1,0 +1,12 @@
+{
+  "texture": {
+    "in": "skyhighocs:cybers/cyber_shadow_full",
+    "transform": [
+      {
+        "operation": "STITCH",
+        "supply": "skyhighocs:display_head"
+      }
+    ],
+    "out": "skyhighocs:generated/cyber_shadow_display_head"
+  }
+}

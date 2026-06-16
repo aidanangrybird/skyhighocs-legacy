@@ -1172,6 +1172,14 @@
         "time": 40
       },
       "isToggle": true
+    },
+    "fiskheroes:transformation|charging": {
+      "transformation": {
+        "toggleData": "skyhighocs:dyn/charging",
+        "timerData": "skyhighocs:dyn/charging_timer",
+        "time": 40
+      },
+      "isToggle": true
     }
   },
   "hud": [

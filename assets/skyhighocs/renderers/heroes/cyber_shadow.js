@@ -1,6 +1,17 @@
 extend("skyhighocs:base_cyber");
 
 loadTextures({
+  "screen_color": "skyhighocs:cybers/cyber_shadow_color",
+  "screen_scroll_bar_outer": "skyhighocs:cybers/cyber_shadow_color",
+  "screen_scroll_bar_inner": "skyhighocs:cybers/cyber_shadow_color",
+  "screen_scroll_bar_bar_inner": "skyhighocs:cybers/cyber_shadow_color",
+  "display_head": "skyhighocs:cybers/cyber_shadow_display_head.tx.json",
+  "display_head_hair": "skyhighocs:cybers/cyber_shadow_display_head_hair.tx.json",
+  "display_left_arm": "skyhighocs:cybers/cyber_shadow_display_left_arm.tx.json",
+  "display_right_arm": "skyhighocs:cybers/cyber_shadow_display_right_arm.tx.json",
+  "display_body": "skyhighocs:cybers/cyber_shadow_display_body.tx.json",
+  "display_left_leg": "skyhighocs:cybers/cyber_shadow_display_left_leg.tx.json",
+  "display_right_leg": "skyhighocs:cybers/cyber_shadow_display_right_leg.tx.json",
   "arm_lights": "skyhighocs:damien/cyber_shadow_arm_lights",
   "claw_lights": "skyhighocs:damien/cyber_shadow_claw_lights",
   "head_lights": "skyhighocs:damien/cyber_shadow_head_lights",
@@ -30,6 +41,8 @@ loadTextures({
   "right_arm_disguise": "skyhighocs:damien/cyber_shadow_right_arm_disguise.tx.json",
   "left_leg_disguise": "skyhighocs:damien/cyber_shadow_left_leg_disguise.tx.json",
   "right_leg_disguise": "skyhighocs:damien/cyber_shadow_right_leg_disguise.tx.json",
+  "shield": "skyhighocs:damien/cyber_shadow_shield",
+  "blade": "skyhighocs:damien/cyber_shadow_blade",
   //"santa_hat_cyber_lights": "skyhighocs:damien/cyber_shadow_santa_hat_lights",
   "character_0": "skyhighocs:characters/damien/damien_character_0",
   "character_1": "skyhighocs:characters/damien/damien_character_1",

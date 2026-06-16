@@ -8,6 +8,118 @@ function initModule(system) {
     moduleMessageName: "Settings",
     type: 1,
     command: "set",
+    cyberMenus: {
+      "settings": {
+        parent: "main",
+        prevButton: "main_settings",
+        buttons: {
+          "settings_statue_mode": {
+            borderingButtons: {
+              bottom: "settings_alias_active",
+              right: "settings_body_lights",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                var nbt = system.mainNBT(entity);
+                manager.setBoolean(nbt, "statueMode", !nbt.getBoolean("statueMode"));
+                manager.setData(entity, "skyhighocs:dyn/cybernetic_statue_mode", nbt.getBoolean("statueMode"));
+                if (entity.getData("skyhighocs:dyn/cybernetic_statue_mode")) {
+                  system.moduleMessage(this, entity, "<n>Enabled <nh>statue mode<n>!");
+                } else {
+                  system.moduleMessage(this, entity, "<n>Disabled <nh>statue mode<n>!");
+                };
+              },
+              backAction: (entity, manager) => {
+                system.setButton(entity, manager, "main_settings");
+                system.setMenu(entity, manager, "main");
+              },
+            }
+          },
+          "settings_body_lights": {
+            borderingButtons: {
+              bottom: "settings_night_vision",
+              left: "settings_statue_mode",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                var nbt = system.mainNBT(entity);
+                manager.setBoolean(nbt, "bodyLights", !nbt.getBoolean("bodyLights"));
+                manager.setData(entity, "skyhighocs:dyn/cybernetic_body_lights", nbt.getBoolean("bodyLights"));
+                if (entity.getData("skyhighocs:dyn/cybernetic_body_lights")) {
+                  system.moduleMessage(this, entity, "<n>Enabled <nh>body lights<n>!");
+                } else {
+                  system.moduleMessage(this, entity, "<n>Disabled <nh>body lights<n>!");
+                };
+              },
+              backAction: (entity, manager) => {
+                system.setButton(entity, manager, "main_settings");
+                system.setMenu(entity, manager, "main");
+              },
+            }
+          },
+          "settings_alias_active": {
+            borderingButtons: {
+              top: "settings_statue_mode",
+              right: "settings_night_vision",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                var nbt = system.mainNBT(entity);
+                manager.setBoolean(nbt, "aliasActive", !nbt.getBoolean("aliasActive"));
+                manager.setData(entity, "skyhighocs:dyn/alias_active", nbt.getBoolean("aliasActive"));
+                if (entity.getData("skyhighocs:dyn/alias_active")) {
+                  system.moduleMessage(this, entity, "<n>Enabled <nh>alias<n>!");
+                } else {
+                  system.moduleMessage(this, entity, "<n>Disabled <nh>alias<n>!");
+                };
+              },
+              backAction: (entity, manager) => {
+                system.setButton(entity, manager, "main_settings");
+                system.setMenu(entity, manager, "main");
+              },
+            }
+          },
+          "settings_night_vision": {
+            borderingButtons: {
+              top: "settings_body_lights",
+              left: "settings_alias_active",
+            },
+            properties: {
+              confirmAction: (entity, manager) => {
+                var nbt = system.mainNBT(entity);
+                manager.setBoolean(nbt, "nightVision", !nbt.getBoolean("nightVision"));
+                manager.setData(entity, "skyhighocs:dyn/night_vision", nbt.getBoolean("nightVision"));
+                if (entity.getData("skyhighocs:dyn/night_vision")) {
+                  system.moduleMessage(this, entity, "<n>Enabled <nh>night vision<n>!");
+                } else {
+                  system.moduleMessage(this, entity, "<n>Disabled <nh>night vision<n>!");
+                };
+              },
+              backAction: (entity, manager) => {
+                system.setButton(entity, manager, "main_settings");
+                system.setMenu(entity, manager, "main");
+              },
+            }
+          },
+        }
+      }
+    },
+    cyberMainButton: {
+      buttonID: "main_settings",
+      borderingButtons: {
+        top: "main_thermoptics",
+        bottom: "main_contacts_groups"
+      },
+      properties: {
+        confirmAction: (entity, manager) => {
+          system.setMenu(entity, manager, "settings");
+          system.setButton(entity, manager, "settings_statue_mode");
+        },
+        backAction: (entity, manager) => {
+          manager.setData(entity, "skyhighocs:dyn/interface", false);
+        }
+      }
+    },
     helpMessage: "<n>!set <nh>-<n> Settings",
     commandHandler: function (entity, manager, argList) {
       if (argList.length > 1 && argList.length < 4) {

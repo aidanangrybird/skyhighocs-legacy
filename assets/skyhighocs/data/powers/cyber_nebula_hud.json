@@ -97,12 +97,22 @@
     {
       "type": "CHARGE",
       "texture": "skyhighocs:textures/gui/bars/cyber_nebula_transmitting.png",
-      "data": "entity.getInterpolatedData('skyhighocs:dyn/transmit_timer')"
+      "data": "entity.getInterpolatedData('skyhighocs:dyn/transmit_suits_timer')"
     },
     {
       "type": "CHARGE",
       "texture": "skyhighocs:textures/gui/bars/cyber_nebula_receiving.png",
-      "data": "entity.getInterpolatedData('skyhighocs:dyn/receive_timer')"
+      "data": "entity.getInterpolatedData('skyhighocs:dyn/receive_suits_timer')"
+    },
+    {
+      "type": "CHARGE",
+      "texture": "skyhighocs:textures/gui/bars/cyber_nebula_transmitting.png",
+      "data": "entity.getInterpolatedData('skyhighocs:dyn/transmit_waypoints_timer')"
+    },
+    {
+      "type": "CHARGE",
+      "texture": "skyhighocs:textures/gui/bars/cyber_nebula_receiving.png",
+      "data": "entity.getInterpolatedData('skyhighocs:dyn/receive_waypoints_timer')"
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "texture": {
+    "in": "skyhighocs:cybers/cyber_nebula_full",
+    "transform": [
+      {
+        "operation": "STITCH",
+        "supply": "skyhighocs:display_right_arm"
+      }
+    ],
+    "out": "skyhighocs:generated/cyber_nebula_display_right_arm"
+  }
+}

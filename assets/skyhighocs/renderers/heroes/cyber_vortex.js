@@ -3,6 +3,17 @@ extend("skyhighocs:base_cyber");
 var stuff = implement("skyhighocs:external/stuff");
 
 loadTextures({
+  "screen_color": "skyhighocs:cybers/cyber_vortex_color",
+  "screen_scroll_bar_outer": "skyhighocs:cybers/cyber_vortex_color",
+  "screen_scroll_bar_inner": "skyhighocs:cybers/cyber_vortex_color",
+  "screen_scroll_bar_bar_inner": "skyhighocs:cybers/cyber_vortex_color",
+  "display_head": "skyhighocs:cybers/cyber_vortex_display_head.tx.json",
+  "display_head_hair": "skyhighocs:cybers/cyber_vortex_display_head_hair.tx.json",
+  "display_left_arm": "skyhighocs:cybers/cyber_vortex_display_left_arm.tx.json",
+  "display_right_arm": "skyhighocs:cybers/cyber_vortex_display_right_arm.tx.json",
+  "display_body": "skyhighocs:cybers/cyber_vortex_display_body.tx.json",
+  "display_left_leg": "skyhighocs:cybers/cyber_vortex_display_left_leg.tx.json",
+  "display_right_leg": "skyhighocs:cybers/cyber_vortex_display_right_leg.tx.json",
   "arm_lights": "skyhighocs:aidan/cyber_vortex_arm_lights",
   "claw_lights": "skyhighocs:aidan/cyber_vortex_claw_lights",
   "head_lights": "skyhighocs:aidan/cyber_vortex_head_lights",
@@ -32,6 +43,8 @@ loadTextures({
   "right_arm_disguise": "skyhighocs:aidan/cyber_vortex_right_arm_disguise.tx.json",
   "left_leg_disguise": "skyhighocs:aidan/cyber_vortex_left_leg_disguise.tx.json",
   "right_leg_disguise": "skyhighocs:aidan/cyber_vortex_right_leg_disguise.tx.json",
+  "shield": "skyhighocs:aidan/cyber_vortex_shield",
+  "blade": "skyhighocs:aidan/cyber_vortex_blade",
   //"santa_hat_cyber_lights": "skyhighocs:aidan/cyber_vortex_santa_hat_lights",
   "character_0": "skyhighocs:characters/aidan/aidan_character_0",
   "character_1": "skyhighocs:characters/aidan/aidan_character_1",
@@ -126,7 +139,7 @@ loadTextures({
   "character_90": "skyhighocs:characters/aidan/aidan_character_90",
   "character_91": "skyhighocs:characters/aidan/aidan_character_91",
   "character_92": "skyhighocs:characters/aidan/aidan_character_92",
-  "character_93": "skyhighocs:characters/aidan/aidan_character_93"
+  "character_93": "skyhighocs:characters/aidan/aidan_character_93",
 });
 
 function initEffects(renderer) {
