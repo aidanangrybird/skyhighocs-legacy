@@ -139,7 +139,8 @@ function initCyberneticAnimations(renderer) {
   });
   addAnimation(renderer, "cybernetic.CONVERSION", "skyhighocs:cybernetic_base").setData((entity, data) => {
     data.load(entity.getInterpolatedData("skyhighocs:dyn/cybernetic_conversion_sleep_timer"));
-  });
+  })
+  .priority = -11;
   addAnimation(renderer, "cybernetic.STATUE", "skyhighocs:cybernetic_base").setData((entity, data) => {
     data.load(1.0);
   })
