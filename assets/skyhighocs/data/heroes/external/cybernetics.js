@@ -44,15 +44,6 @@ var colorDamage = {
   "1": "4",
 };
 
-var cybers = [
-  "CF-4",
-  "CV-6",
-  "CA-1",
-  "CG-3",
-  "CN-2",
-  "CS-5"
-];
-
 var hexColors = {
   "CF-4": "0xFF0000",
   "CV-6": "0xFF8900",
