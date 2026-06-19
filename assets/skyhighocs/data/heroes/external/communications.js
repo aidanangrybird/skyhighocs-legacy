@@ -1980,7 +1980,7 @@ function initModule(system) {
           system.setButton(entity, manager, "comms_status");
         },
         backAction: (entity, manager) => {
-          manager.setData(entity, "skyhighocs:dyn/interface", false);
+          manager.setData(entity, "skyhighocs:dyn/cybernetic_interface", false);
         }
       }
     },
@@ -2487,6 +2487,6 @@ function initModule(system) {
       manager.setData(entity, "skyhighocs:dyn/receiving_waypoints", false);
       manager.setData(entity, "skyhighocs:dyn/transmitting_suits", false);
       manager.setData(entity, "skyhighocs:dyn/transmitting_waypoints", false);
-    }
+    },
   };
 };

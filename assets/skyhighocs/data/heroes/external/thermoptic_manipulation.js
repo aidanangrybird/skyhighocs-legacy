@@ -94,7 +94,7 @@ function initModule(system) {
           system.setMenu(entity, manager, "thermoptics");
         },
         backAction: (entity, manager) => {
-          manager.setData(entity, "skyhighocs:dyn/interface", false);
+          manager.setData(entity, "skyhighocs:dyn/cybernetic_interface", false);
         }
       }
     },
@@ -102,7 +102,7 @@ function initModule(system) {
     disabledMessage: "<e>Module <eh>thermoptics<e> is disabled!",
     keyBinds: function (hero, color) {
       hero.addKeyBindFunc("CAMOUFLAGE", (player, manager) => {
-        manager.setData(player, "skyhighocs:dyn/thermoptic_camouflage", !player.getData("skyhighocs:dyn/thermoptic_camouflage"));
+        manager.setDataWithNotify(player, "skyhighocs:dyn/thermoptic_camouflage", !player.getData("skyhighocs:dyn/thermoptic_camouflage"));
         if (player.getData("skyhighocs:dyn/thermoptic_camouflage")) {
           system.moduleMessage(this, player, "<n>Enabled <nh>camo<n>!");
         } else {
@@ -243,7 +243,7 @@ function initModule(system) {
       if (!system.hasEnoughEnergy(entity, manager, "disguiseClothing")) {
         manager.setData(entity, "skyhighocs:dyn/thermoptic_disguise_clothing", false);
       };
-      var invis = (entity.getData("skyhighocs:dyn/thermoptic_camouflage_timer") == 1) && !entity.getData("skyhighocs:dyn/interface");
+      var invis = (entity.getData("skyhighocs:dyn/thermoptic_camouflage_timer") == 1) && !entity.getData("skyhighocs:dyn/cybernetic_interface");
       if (entity.getData("skyhighocs:dyn/thermoptic_camouflage_timer") > 0) {
         manager.setData(entity, "fiskheroes:invisible", invis);
         manager.setData(entity, "fiskheroes:invisibility_timer", (invis?1.0:0.0));
@@ -281,8 +281,18 @@ function initModule(system) {
       };
     },
     onChargingStart: function (entity, manager) {
-      manager.setData(entity, "skyhighocs:dyn/thermoptic_camouflage", false);
-      manager.setData(entity, "skyhighocs:dyn/thermoptic_disguise", false);
-    }
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/thermoptic_camouflage", false);
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/thermoptic_disguise", false);
+    },
+    onSleep: function (entity, manager) {
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/prev_thermoptic_camouflage", entity.getData("skyhighocs:dyn/thermoptic_camouflage"));
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/prev_thermoptic_disguise", entity.getData("skyhighocs:dyn/thermoptic_disguise"));
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/thermoptic_camouflage", false);
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/thermoptic_disguise", false);
+    },
+    onWake: function (entity, manager) {
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/thermoptic_camouflage", entity.getData("skyhighocs:dyn/prev_thermoptic_camouflage"));
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/thermoptic_disguise", entity.getData("skyhighocs:dyn/prev_thermoptic_disguise"));
+    },
   };
 };

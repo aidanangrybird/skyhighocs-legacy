@@ -142,9 +142,9 @@ function initCyberneticAnimations(renderer) {
   })
   .priority = -11;
   addAnimation(renderer, "cybernetic.STATUE", "skyhighocs:cybernetic_base").setData((entity, data) => {
-    data.load(1.0);
+    data.load(entity.getData("skyhighocs:dyn/cybernetic_statue_mode_timer") + entity.getInterpolatedData("skyhighocs:dyn/cybernetics_offline_timer") + entity.getInterpolatedData("skyhighocs:dyn/charging_timer") + entity.getInterpolatedData("skyhighocs:dyn/cybernetic_sleep_timer"));
   })
-  .setCondition(entity => !entity.is("DISPLAY") && entity.getData("skyhighocs:dyn/cybernetic_statue_mode"))
+  .setCondition(entity => !entity.is("DISPLAY"))
   .priority = -11;/*
   addAnimation(renderer, "cybernetic.LEFT_ARM_PUNCH", "skyhighocs:cybernetic_left_arm_punch").setData((entity, data) => {
     data.load(entity.getPunchTimerInterpolated());
@@ -170,8 +170,8 @@ function initCyberneticAnimations(renderer) {
     .priority = -8;
   addAnimationWithData(renderer, "cybernetic.ROLL", "skyhighocs:flight/cybernetic_barrel_roll", "fiskheroes:barrel_roll_timer")
   addFlightIdleAnimation(renderer, "cybernetic.IDLE", "skyhighocs:flight/cybernetic_idle");
-  addAnimationWithData(renderer, "cybernetic.POWER", "skyhighocs:cybernetic_base", "skyhighocs:dyn/powering_down_timer")
-    .setCondition(entity => (!entity.is("DISPLAY") && entity.getInterpolatedData("skyhighocs:dyn/powering_down_timer") > 0))
+  addAnimationWithData(renderer, "cybernetic.OFFLINE", "skyhighocs:cybernetic_base", "skyhighocs:dyn/cybernetics_offline_timer")
+    .setCondition(entity => (!entity.is("DISPLAY") && entity.getInterpolatedData("skyhighocs:dyn/cybernetics_offline_timer") > 0))
     .priority = -10;
 
   addAnimation(renderer, "cybernetic.HOLOGRAM_FLIGHT", "skyhighocs:cybernetic_holo_flight").setData((entity, data) => {

@@ -200,7 +200,7 @@ function initModule(system) {
           system.setButton(entity, manager, "rockets_arms_armed");
         },
         backAction: (entity, manager) => {
-          manager.setData(entity, "skyhighocs:dyn/interface", false);
+          manager.setData(entity, "skyhighocs:dyn/cybernetic_interface", false);
         }
       }
     },
@@ -1487,10 +1487,26 @@ function initModule(system) {
       manager.setData(entity, "skyhighocs:dyn/rocket_inner_legs_enabled", nbt.getBoolean("innerRockets"));
     },
     onChargingStart: function (entity, manager) {
-      manager.setData(entity, "fiskheroes:flying", false);
-      manager.setData(entity, "skyhighocs:dyn/rockets_arms", false);
-      manager.setData(entity, "skyhighocs:dyn/rockets_legs", false);
-      manager.setData(entity, "skyhighocs:dyn/rockets_body", false);
-    }
+      manager.setDataWithNotify(entity, "fiskheroes:flying", false);
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/rockets_arms", false);
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/rockets_legs", false);
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/rockets_body", false);
+    },
+    onSleep: function (entity, manager) {
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/prev_rockets", entity.getData("fiskheroes:flying"));
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/prev_rockets_body", entity.getData("skyhighocs:dyn/rockets_body"));
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/prev_rockets_arms", entity.getData("skyhighocs:dyn/rockets_arms"));
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/prev_rockets_legs", entity.getData("skyhighocs:dyn/rockets_legs"));
+      manager.setDataWithNotify(entity, "fiskheroes:flying", false);
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/rockets_arms", false);
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/rockets_legs", false);
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/rockets_body", false);
+    },
+    onWake: function (entity, manager) {
+      manager.setDataWithNotify(entity, "fiskheroes:flying", entity.getData("skyhighocs:dyn/prev_rockets"));
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/rockets_body", entity.getData("skyhighocs:dyn/prev_rockets_body"));
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/rockets_arms", entity.getData("skyhighocs:dyn/prev_rockets_arms"));
+      manager.setDataWithNotify(entity, "skyhighocs:dyn/rockets_legs", entity.getData("skyhighocs:dyn/prev_rockets_legs"));
+    },
   };
 };

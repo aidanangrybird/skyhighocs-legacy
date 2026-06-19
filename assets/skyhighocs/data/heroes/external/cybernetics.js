@@ -951,7 +951,7 @@ var defaultButtons = [
         setButton(entity, manager, "system_core_open");
       },
       backAction: (entity, manager) => {
-        manager.setData(entity, "skyhighocs:dyn/interface", false);
+        manager.setData(entity, "skyhighocs:dyn/cybernetic_interface", false);
       }
     }
   },
@@ -966,7 +966,7 @@ var defaultButtons = [
         systemMessage(entity, "Not available yet!");
       },
       backAction: (entity, manager) => {
-        manager.setData(entity, "skyhighocs:dyn/interface", false);
+        manager.setData(entity, "skyhighocs:dyn/cybernetic_interface", false);
       }
     }
   }
@@ -974,6 +974,10 @@ var defaultButtons = [
 
 var defaultMenus = {
 };
+
+var onSleepActions = [];
+
+var onWakeActions = [];
 
 /**
  * Initializes cyber system
@@ -1063,6 +1067,10 @@ function initSystem(moduleList, name, colorCode, uuid) {
   var onChargingStartIndexes = [];
   /** @var onChargingStopIndexes - Indexes of on charging stop capable modules */
   var onChargingStopIndexes = [];
+  /** @var onSleepIndexes - Indexes of on sleep capable modules */
+  var onSleepIndexes = [];
+  /** @var onWakeIndexes - Indexes of on wake capable modules */
+  var onWakeIndexes = [];
   /** @var cyberModelID - cyber model name */
   var cyberModelID = formatModel(name) + "-" + colorCode;
   /** @var cyberName - cyber name */
@@ -1333,6 +1341,16 @@ function initSystem(moduleList, name, colorCode, uuid) {
                 onChargingStopIndexes.push(modules.length - 1);
                 logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onChargingStop\"!");
               };
+              if (moduleInit.hasOwnProperty("onSleep")) {
+                onSleepIndexes.push(modules.length - 1);
+                onSleepActions.push(moduleInit["onSleep"]);
+                logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onSleep\"!");
+              };
+              if (moduleInit.hasOwnProperty("onWake")) {
+                onWakeIndexes.push(modules.length - 1);
+                onWakeActions.push(moduleInit["onWake"]);
+                logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onWake\"!");
+              };
               if (moduleInit.hasOwnProperty("cyberMainButton")) {
                 var button = moduleInit.cyberMainButton;
                 mainButtons.push(button);
@@ -1424,6 +1442,16 @@ function initSystem(moduleList, name, colorCode, uuid) {
               if (moduleInit.hasOwnProperty("onChargingStop")) {
                 onChargingStopIndexes.push(modules.length - 1);
                 logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onChargingStop\"!");
+              };
+              if (moduleInit.hasOwnProperty("onSleep")) {
+                onSleepIndexes.push(modules.length - 1);
+                onSleepActions.push(moduleInit["onSleep"]);
+                logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onSleep\"!");
+              };
+              if (moduleInit.hasOwnProperty("onWake")) {
+                onWakeIndexes.push(modules.length - 1);
+                onWakeActions.push(moduleInit["onWake"]);
+                logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onWake\"!");
               };
               if (moduleInit.hasOwnProperty("cyberMainButton")) {
                 var button = moduleInit.cyberMainButton;
@@ -1517,6 +1545,16 @@ function initSystem(moduleList, name, colorCode, uuid) {
               if (moduleInit.hasOwnProperty("onChargingStop")) {
                 onChargingStopIndexes.push(modules.length - 1);
                 logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onChargingStop\"!");
+              };
+              if (moduleInit.hasOwnProperty("onSleep")) {
+                onSleepIndexes.push(modules.length - 1);
+                onSleepActions.push(moduleInit["onSleep"]);
+                logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onSleep\"!");
+              };
+              if (moduleInit.hasOwnProperty("onWake")) {
+                onWakeIndexes.push(modules.length - 1);
+                onWakeActions.push(moduleInit["onWake"]);
+                logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onWake\"!");
               };
               if (moduleInit.hasOwnProperty("cyberMainButton")) {
                 var button = moduleInit.cyberMainButton;
@@ -1612,6 +1650,16 @@ function initSystem(moduleList, name, colorCode, uuid) {
               if (moduleInit.hasOwnProperty("onChargingStop")) {
                 onChargingStopIndexes.push(modules.length - 1);
                 logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onChargingStop\"!");
+              };
+              if (moduleInit.hasOwnProperty("onSleep")) {
+                onSleepIndexes.push(modules.length - 1);
+                onSleepActions.push(moduleInit["onSleep"]);
+                logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onSleep\"!");
+              };
+              if (moduleInit.hasOwnProperty("onWake")) {
+                onWakeIndexes.push(modules.length - 1);
+                onWakeActions.push(moduleInit["onWake"]);
+                logMessage("Module \"" + moduleInit.name + "\" has optional spec \"onWake\"!");
               };
               if (moduleInit.hasOwnProperty("cyberMainButton")) {
                 var button = moduleInit.cyberMainButton;
@@ -1970,7 +2018,7 @@ function initSystem(moduleList, name, colorCode, uuid) {
     if ((modifier.name() == "fiskheroes:transformation") && (modifier.id() == "interface")) {
       return true;
     };
-    if (entity.getData("skyhighocs:dyn/powering_down_timer") > 0) {
+    if (entity.getData("skyhighocs:dyn/cybernetics_offline_timer") > 0) {
       return false; 
     };
     if (modifier.name() == "fiskheroes:shape_shifting") {
@@ -2133,11 +2181,14 @@ function initSystem(moduleList, name, colorCode, uuid) {
    **/
   function cyberneticAttributeProfile(entity) {
     var result = null;
-    if (entity.getData("skyhighocs:dyn/powering_down_timer") > 0) {
+    if (entity.getData("skyhighocs:dyn/cybernetics_offline_timer") > 0) {
       result = "SHUT_DOWN";
     };
-    if (entity.getData("skyhighocs:dyn/interface") && entity.getData("skyhighocs:dyn/charging_timer") == 0) {
+    if (entity.getData("skyhighocs:dyn/cybernetic_interface") && entity.getData("skyhighocs:dyn/charging_timer") == 0 && entity.getData("skyhighocs:dyn/cybernetic_sleep_timer") == 0) {
       result = "INTERFACE";
+    };
+    if (entity.getData("skyhighocs:dyn/cybernetic_sleep_timer") == 1) {
+      result = "SLEEPING";
     };
     if (entity.getData("skyhighocs:dyn/charging_timer") > 0) {
       result = "CHARGING";
@@ -2175,7 +2226,7 @@ function initSystem(moduleList, name, colorCode, uuid) {
    **/
   function cyberneticDamageProfile(entity) {
     var result = null;
-    if (entity.getData("skyhighocs:dyn/powering_down_timer") > 0) {
+    if (entity.getData("skyhighocs:dyn/cybernetics_offline_timer") > 0) {
       result = null;
     };
     if (damageProfileIndexes.length == 1) {
@@ -2237,6 +2288,12 @@ function initSystem(moduleList, name, colorCode, uuid) {
       profile.addAttribute("STEP_HEIGHT", -1.0, 1);
       profile.addAttribute("KNOCKBACK", -1.0, 1);
       profile.addAttribute("PUNCH_DAMAGE", -1.0, 1);
+    });
+    hero.addAttributeProfile("SLEEPING", function (profile) {
+      profile.addAttribute("BASE_SPEED", -0.9, 1);
+      profile.addAttribute("SPRINT_SPEED", -1.0, 1);
+      profile.addAttribute("JUMP_HEIGHT", -1.0, 1);
+      profile.addAttribute("STEP_HEIGHT", -1.0, 1);
     });
     hero.addAttributeProfile("UNAUTHORIZED", function (profile) {
       profile.addAttribute("BASE_SPEED", -1.0, 1);
@@ -2315,12 +2372,12 @@ function initSystem(moduleList, name, colorCode, uuid) {
   function cyberneticKeyBindEnabled(entity, keyBind) {
     if (entity.getData("skyhighocs:dyn/charging_timer") == 0) {
       if (keyBind == "START_CHARGING") {
-        return (entity.getData("skyhighocs:dyn/charging_timer") == 0) && onChargingBlock(entity) && !entity.getData("skyhighocs:dyn/interface");
+        return (entity.getData("skyhighocs:dyn/charging_timer") == 0) && onChargingBlock(entity) && !entity.getData("skyhighocs:dyn/cybernetic_interface");
       };
       if (keyBind == "INTERFACE") {
-        return (entity.getData("skyhighocs:dyn/interface")) ? true : !entity.isSneaking();
+        return (entity.getData("skyhighocs:dyn/cybernetic_interface")) ? true : !entity.isSneaking();
       };
-      if (!entity.getData("skyhighocs:dyn/interface")) {
+      if (entity.getData("skyhighocs:dyn/cybernetic_interface_timer") == 0) {
         if (keyBind == "BATTLE_MODE") {
           return entity.isSneaking();
         };
@@ -2374,7 +2431,7 @@ function initSystem(moduleList, name, colorCode, uuid) {
         };
       } else {
         if (keyBind == "SHAPE_SHIFT" || keyBind == "CONFIRM" || keyBind == "BACK") {
-          return true;
+          return entity.getData("skyhighocs:dyn/cybernetic_interface_timer") == 1;
         } else {
           return false;
         };
@@ -2387,7 +2444,7 @@ function initSystem(moduleList, name, colorCode, uuid) {
         return true;
       };
       if (keyBind == "SHAPE_SHIFT" || keyBind == "CONFIRM" || keyBind == "BACK") {
-        return entity.getData("skyhighocs:dyn/interface");
+        return entity.getData("skyhighocs:dyn/cybernetic_interface_timer") == 1;
       } else {
         return false;
       };
@@ -2500,12 +2557,27 @@ function initSystem(moduleList, name, colorCode, uuid) {
                 status(entity);
                 break;
               case "powerOff":
-                manager.setData(entity, "skyhighocs:dyn/powered_down", true);
+                manager.setData(entity, "skyhighocs:dyn/cybernetics_offline", true);
                 systemMessage(entity, "<n>Powering down!");
+                manager.setData(entity, "skyhighocs:dyn/cybernetic_body_lights", false);
+                manager.setData(entity, "skyhighocs:dyn/cybernetic_statue_mode", true);
+                manager.setData(entity, "skyhighocs:dyn/night_vision", false);
+                manager.setData(entity, "skyhighocs:dyn/optics_enabled", false);
+                onChargingStartIndexes.forEach(index => {
+                  modules[index].onChargingStart(entity, manager);
+                });
                 break;
               case "powerOn":
-                manager.setData(entity, "skyhighocs:dyn/powered_down", false);
+                manager.setData(entity, "skyhighocs:dyn/cybernetics_offline", false);
                 systemMessage(entity, "<n>Powering on!");
+                var nbt = mainNBT(entity);
+                manager.setData(entity, "skyhighocs:dyn/cybernetic_body_lights", nbt.getBoolean("bodyLights"));
+                manager.setData(entity, "skyhighocs:dyn/cybernetic_statue_mode", nbt.getBoolean("statueMode"));
+                manager.setData(entity, "skyhighocs:dyn/night_vision", nbt.getBoolean("nightVision"));
+                manager.setData(entity, "skyhighocs:dyn/optics_enabled", true);
+                onChargingStopIndexes.forEach(index => {
+                  modules[index].onChargingStop(entity, manager);
+                });
                 break;
               case "openCore":
                 manager.setData(entity, "skyhighocs:dyn/system_core_open", true);
@@ -2527,7 +2599,7 @@ function initSystem(moduleList, name, colorCode, uuid) {
                 systemMessage(entity, "<n>Available commands:");
                 commandIndexes.forEach(index => {
                   var module = modules[index];
-                  if (!isModuleDisabled(entity, module.name) && entity.getData("skyhighocs:dyn/powering_down_timer") == 0) {
+                  if (!isModuleDisabled(entity, module.name) && entity.getData("skyhighocs:dyn/cybernetics_offline_timer") == 0) {
                     systemMessage(entity, module.helpMessage);
                   };
                 });
@@ -2549,7 +2621,7 @@ function initSystem(moduleList, name, colorCode, uuid) {
                 maybeGetID(entity, manager, args[1])
                 break;
               case "cv":
-                entity.as("PLAYER").addChatMessage(entity.getDataOrDefault("skyhighocs:dyn/" + args[1], 0));
+                entity.as("PLAYER").addChatMessage(PackLoader.getSide() + ": " + entity.getDataOrDefault("skyhighocs:dyn/" + args[1], 0));
                 break;
               case "nbtStringList":
                 entity.as("PLAYER").addChatMessage(nbt.getStringList(args[1]));
@@ -2612,7 +2684,7 @@ function initSystem(moduleList, name, colorCode, uuid) {
                 break;
               default:
                 var index = commands.indexOf(args[0]);
-                if (index > -1 && entity.getData("skyhighocs:dyn/powering_down_timer") == 0) {
+                if (index > -1 && entity.getData("skyhighocs:dyn/cybernetics_offline_timer") == 0) {
                   var module = modules[commandIndexes[index]];
                   if (!isModuleDisabled(entity, module.name)) {
                     module.commandHandler(entity, manager, args);
@@ -2645,7 +2717,7 @@ function initSystem(moduleList, name, colorCode, uuid) {
       };
       tickHandlerIndexes.forEach(index => {
         var module = modules[index];
-        if (!isModuleDisabled(entity, module.name) && entity.getData("skyhighocs:dyn/powering_down_timer") == 0) {
+        if (!isModuleDisabled(entity, module.name) && entity.getData("skyhighocs:dyn/cybernetics_offline_timer") == 0) {
           module.tickHandler(entity, manager);
         };
       });
@@ -2659,24 +2731,14 @@ function initSystem(moduleList, name, colorCode, uuid) {
         maybeGetID(entity, manager, entity.getData("fiskheroes:grabbed_by"));
       };
     };
-    if (PackLoader.getSide() == "SERVER" && entity.getData("skyhighocs:dyn/powering_down_timer") < 1 && entity.getData("skyhighocs:dyn/powering_down_timer") > 0) {
-      var moduleTotal = cyberneticModules.length;
-      var moduleTime = (80/moduleTotal).toFixed(0);
-      var currentTime = Math.ceil(entity.getData("skyhighocs:dyn/powering_down_timer")*80);
-      if (currentTime % moduleTime == 0) {
-        var moduleName = cyberneticModules[(currentTime/moduleTime)-1];
-        var message = entity.getData("skyhighocs:dyn/powered_down") ? "<n>Shutting down <nh>" + moduleName + "<n>!" : "<n>Starting up <nh>" + moduleName + "<n>!";
-        systemMessage(entity, message);
-      };
-    };
     if (entity.getData("skyhighocs:dyn/energy") <= 0) {
-      manager.setData(entity, "skyhighocs:dyn/powered_down", true);
+      manager.setData(entity, "skyhighocs:dyn/cybernetics_offline", true);
     } else {
-      if (entity.getData("skyhighocs:dyn/powering_down_timer") == 1) {
-        manager.setData(entity, "skyhighocs:dyn/powered_down", false);
+      if (entity.getData("skyhighocs:dyn/charging_timer") == 1 && entity.getData("skyhighocs:dyn/cybernetics_offline_timer") == 1) {
+        manager.setData(entity, "skyhighocs:dyn/cybernetics_offline", false);
       };
     };
-    if (entity.getData("skyhighocs:dyn/powering_down_timer") == 0) {
+    if (entity.getData("skyhighocs:dyn/cybernetics_offline_timer") == 0) {
       useEnergy(entity, manager, "base");
     };
     if (entity.getData("skyhighocs:dyn/cybernetic_body_lights")) {
@@ -2702,6 +2764,36 @@ function initSystem(moduleList, name, colorCode, uuid) {
         stopCharging(entity, manager);
       } else {
         chargeEnergy(entity, manager);
+      };
+    };
+    if (entity.getData("skyhighocs:dyn/cybernetic_sleep_timer") == 1) {
+      if ((entity.getPunchTimer() > 0.9)) {
+        manager.setDataWithNotify(entity, "skyhighocs:dyn/cybernetic_sleep", false);
+      };
+      if (entity.getData("skyhighocs:dyn/thermoptic_camouflage") || entity.getData("skyhighocs:dyn/thermoptic_disguise")) {
+        manager.setDataWithNotify(entity, "skyhighocs:dyn/cybernetic_sleep", false);
+      };
+      if (entity.getData("fiskheroes:shield") || entity.getData("skyhighocs:dyn/shield_left") || entity.getData("skyhighocs:dyn/shield_right")) {
+        manager.setDataWithNotify(entity, "skyhighocs:dyn/cybernetic_sleep", false);
+      };
+      if (entity.getData("fiskheroes:flying") || entity.getData("skyhighocs:dyn/rockets_body") || entity.getData("skyhighocs:dyn/rockets_arms") || entity.getData("skyhighocs:dyn/rockets_legs")) {
+        manager.setDataWithNotify(entity, "skyhighocs:dyn/cybernetic_sleep", false);
+      };
+      if (entity.getData("fiskheroes:gliding") || entity.getData("skyhighocs:dyn/wings")) {
+        manager.setDataWithNotify(entity, "skyhighocs:dyn/cybernetic_sleep", false);
+      };
+      if (entity.getData("fiskheroes:blade") || entity.getData("skyhighocs:dyn/blade_left") || entity.getData("skyhighocs:dyn/blade_right")) {
+        manager.setDataWithNotify(entity, "skyhighocs:dyn/cybernetic_sleep", false);
+      };
+      if (entity.getData("skyhighocs:dyn/cannons_body") || entity.getData("skyhighocs:dyn/cannons_arms") || entity.getData("skyhighocs:dyn/cannons_head")) {
+        manager.setDataWithNotify(entity, "skyhighocs:dyn/cybernetic_sleep", false);
+      };
+      if (!entity.getData("skyhighocs:dyn/cybernetic_sleep")) {
+        systemMessage(entity, "<n>Sleep mode canceled!");
+        manager.setDataWithNotify(entity, "skyhighocs:dyn/cybernetic_body_lights", nbt.getBoolean("bodyLights"));
+        onWakeIndexes.forEach(index => {
+          modules[index].onWake(entity, manager);
+        });
       };
     };
     //Eyes
@@ -2753,7 +2845,7 @@ function initSystem(moduleList, name, colorCode, uuid) {
     if (sneakMultiTap.conditionalMultiTap(entity, manager, 2, 10, 1, entity.isSneaking())) {
       manager.setDataWithNotify(entity, "skyhighocs:dyn/thermoptic_disguise", !entity.getData("skyhighocs:dyn/thermoptic_disguise"));
     };
-    if (entity.getData("skyhighocs:dyn/interface") && !entity.getData("skyhighocs:dyn/entering_value")) {
+    if (entity.getData("skyhighocs:dyn/cybernetic_interface_timer") == 1 && !entity.getData("skyhighocs:dyn/entering_value")) {
       if (PackLoader.getSide() == "SERVER") {
         syncMotion(entity, manager);
         var motion_x = entity.getData("skyhighocs:dyn/motion_x");

@@ -605,7 +605,7 @@ function initModule(system) {
           system.setMenu(entity, manager, "suits");
         },
         backAction: (entity, manager) => {
-          manager.setData(entity, "skyhighocs:dyn/interface", false);
+          manager.setData(entity, "skyhighocs:dyn/cybernetic_interface", false);
         }
       }
     },
