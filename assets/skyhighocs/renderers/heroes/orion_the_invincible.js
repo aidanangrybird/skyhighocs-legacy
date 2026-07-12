@@ -1,0 +1,21 @@
+extend("skyhighocs:base_chakra");
+
+loadTextures({
+  "suit_off": "skyhighocs:orion/orion_the_invincible_off",
+  "suit_mask_on": "skyhighocs:orion/orion_the_invincible_mask_on",
+  "suit_mask_off": "skyhighocs:orion/orion_the_invincible_mask_off",
+  "suit_inactive_mask_on": "skyhighocs:orion/orion_the_invincible_inactive_mask_on",
+  "suit_inactive_mask_off": "skyhighocs:orion/orion_the_invincible_inactive_mask_off"
+});
+
+function getColor() {
+  return 0x00FFFF;
+};
+
+function getID() {
+  return "a3d071d4-c912-41e1-a6b2-c0de99ea4a84";
+};
+
+function getName() {
+  return "orion";
+};

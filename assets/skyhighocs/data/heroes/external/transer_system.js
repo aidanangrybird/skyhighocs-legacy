@@ -166,7 +166,8 @@ var hexColors = {
   "Aidan Stelar": "0xFF8900",
   "Cade Stelar": "0x0000FF",
   "Chase Stelar": "0x55FF00",
-  "Damien Stelar": "0x8000FF"
+  "Damien Stelar": "0x8000FF",
+  "Orion Stelar": "0x00FFFF"
 };
 
 function assignTranser(entity, manager, satellite) {
@@ -264,7 +265,7 @@ function getAssignedSatellite(entity) {
 function canUseTranser(entity) {
   var variable = entity.getData("skyhighocs:dyn/em_being_variable");
   if (variable != null) {
-    return ((entity.getData("skyhighocs:dyn/wave_changing_timer") == 0) ? true : entity.getData("skyhighocs:dyn/" + variable + "_timer") == 1);
+    return ((entity.getData("skyhighocs:dyn/wave_changing_timer") == 0) ? true : entity.getDataOrDefault("skyhighocs:dyn/" + variable + "_timer", 0.0) == 1);
   } else {
     return true;
   };

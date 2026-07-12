@@ -1,0 +1,26 @@
+{
+  "suit": "skyhighocs:orion_stelar",
+  "display": {
+    "description": {
+      "translate": "EM Wave Change! Orion Stelar, On-Air!"
+    }
+  },
+  "requirements": [
+    "skyhighocs:transers",
+    "fiskheroes:tier1"
+  ],
+  "criteria": {
+    "exist": {
+      "trigger": "fiskheroes:tick",
+      "description": {
+        "translate": "Exist as Orion9450"
+      },
+      "condition": {
+        "variables": {
+          "player": "PLAYER_TICKING"
+        },
+        "check": "player.getUUID() == 'a3d071d4-c912-41e1-a6b2-c0de99ea4a84'"
+      }
+    }
+  }
+}

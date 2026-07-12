@@ -36,6 +36,7 @@ var hexColors = {
   "Aero": "0xFF8900",
   "Artemis": "0xFF0000",
   "Apollo": "0x55FF00",
+  "Helios": "0x00FFFF",
   "Vulcan": "0x8000FF"
 };
 

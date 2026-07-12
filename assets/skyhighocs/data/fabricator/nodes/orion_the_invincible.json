@@ -1,0 +1,21 @@
+{
+  "suit": "skyhighocs:orion_the_invincible",
+  "requirements": [
+    "skyhighocs:chakra",
+    "fiskheroes:tier8_9"
+  ],
+  "criteria": {
+    "chance": {
+      "trigger": "fiskheroes:player_struck_by_lightning",
+      "description": {
+        "translate": "Get struck by lightning as Orion9450"
+      },
+      "condition": {
+        "variables": {
+          "player": "PLAYER_STRUCK"
+        },
+        "check": "player.getUUID() == 'a3d071d4-c912-41e1-a6b2-c0de99ea4a84'"
+      }
+    }
+  }
+}

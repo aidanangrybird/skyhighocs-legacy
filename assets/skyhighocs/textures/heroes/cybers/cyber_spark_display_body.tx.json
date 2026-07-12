@@ -1,0 +1,12 @@
+{
+  "texture": {
+    "in": "skyhighocs:cybers/cyber_spark_full",
+    "transform": [
+      {
+        "operation": "STITCH",
+        "supply": "skyhighocs:display_body"
+      }
+    ],
+    "out": "skyhighocs:generated/cyber_spark_display_body"
+  }
+}

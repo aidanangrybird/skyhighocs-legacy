@@ -50,7 +50,7 @@ var hexColors = {
   "CF-4": "0xFF0000",
   "CV-6": "0xFF8900",
   "CA-1": "0x0000FF",
-  "CG-3": "0x00FFFF",
+  "CS-3": "0x00FFFF",
   "CN-2": "0x55FF00",
   "CS-5": "0x8000FF"
 };

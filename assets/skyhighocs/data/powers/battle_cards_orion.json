@@ -1,0 +1,137 @@
+{
+  "name": "Battle Cards",
+  "value": 1,
+  "modifiers": {
+    "fiskheroes:shield|electrostatic_dome": {
+      "shield": {
+        "health": 300.0,
+        "regeneration": 25.0,
+        "recoveryDelay": 200
+      },
+      "coverage": {
+        "yawRadius": 360.0,
+        "pitchRadius": 360.0,
+        "yawOffset": 0.0,
+        "pitchOffset": 0.0
+      },
+      "knockback": 0.0,
+      "isToggle": true,
+      "soundEvents": {
+        "BLOCK_START": "skyhighocs:forcefield",
+        "DEFLECT": "skyhighocs:forcefield_deflect"
+      }
+    },
+    "fiskheroes:shield|taser": {
+      "shield": {
+        "health": 300.0,
+        "regeneration": 25.0,
+        "recoveryDelay": 200
+      },
+      "coverage": {
+        "yawRadius": 130.0,
+        "pitchRadius": 180.0,
+        "yawOffset": 0.0,
+        "pitchOffset": 0.0
+      },
+      "knockback": 0.0,
+      "isToggle": true,
+      "soundEvents": {
+      }
+    },
+    "fiskheroes:blade": {
+      "isToggle": true
+    },
+    "fiskheroes:transformation|taser_base": {
+      "transformation": {
+        "toggleData": "skyhighocs:dyn/taser",
+        "timerData": "skyhighocs:dyn/taser_timer",
+        "time": 10
+      },
+      "isToggle": true
+    },
+    "fiskheroes:transformation|taser_arc": {
+      "transformation": {
+        "toggleData": "skyhighocs:dyn/taser_arc",
+        "timerData": "skyhighocs:dyn/taser_arc_timer",
+        "time": 5
+      },
+      "isToggle": true
+    },
+    "fiskheroes:transformation|shock": {
+      "transformation": {
+        "toggleData": "skyhighocs:dyn/shock",
+        "timerData": "skyhighocs:dyn/shock_timer",
+        "time": 10
+      },
+      "isToggle": true
+    },
+    "fiskheroes:lightning_cast": {
+      "damageProfile": {
+        "damage": 15.0,
+        "types": {
+          "ELEMENT_ELEC": 1.0
+        },
+        "properties": {
+          "LIGHTNING_STRIKE": 1.0,
+          "HIT_COOLDOWN": 0
+        }
+      },
+      "range": 128.0,
+      "chainRadius": 8.0,
+      "cooldownTime": 10,
+      "soundEvents": {
+        "SHOOT": "fiskheroes:lightning_cast"
+      }
+    },
+    "fiskheroes:transformation|arc": {
+      "transformation": {
+        "toggleData": "skyhighocs:dyn/arc",
+        "timerData": "skyhighocs:dyn/arc_timer",
+        "time": 10
+      },
+      "isToggle": true
+    },
+    "fiskheroes:energy_manipulation": {
+      "damageProfile": {
+        "damage": 15.0,
+        "types": {
+          "ELEMENT_ELEC": 1.0
+        },
+        "properties": {
+          "LIGHTNING_STRIKE": 1.0,
+          "ADD_KNOCKBACK": 5.0
+        }
+      },
+      "range": 128.0,
+      "chargeTime": 10,
+      "soundEvents": {
+        "SHOOT": "fiskheroes:lightning_cast"
+      }
+    },
+    "fiskheroes:transformation|over_charge": {
+      "transformation": {
+        "toggleData": "skyhighocs:dyn/over_charge",
+        "timerData": "skyhighocs:dyn/over_charge_timer",
+        "time": 10
+      },
+      "isToggle": true
+    },
+    "fiskheroes:charged_beam": {
+      "damageProfile": {
+        "damage": 15.0,
+        "types": {
+          "ELEMENT_ELEC": 1.0
+        },
+        "properties": {
+          "COOK_ENTITY": false,
+          "HIT_COOLDOWN": 5
+        }
+      },
+      "chargeTime": 10,
+      "duration": 240,
+      "cooldownTime": 20,
+      "range": 48.0,
+      "radius": 1.0
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "suit": "skyhighocs:helios",
+  "requirements": [
+    "skyhighocs:robot",
+    "fiskheroes:tier8_9"
+  ],
+  "criteria": {
+    "death": {
+      "trigger": "fiskheroes:player_killed",
+      "description": {
+        "translate": "As Orion9450, die by collision with another player while both players are boost flying"
+      },
+      "condition": {
+        "variables": {
+          "player": "PLAYER_KILLED",
+          "other_player": "DAMAGE_SOURCE"
+          },
+        "check": "player.getUUID() == 'a3d071d4-c912-41e1-a6b2-c0de99ea4a84' && player.isWearingFullSuit() && other_player.getEntity().as('PLAYER').isWearingFullSuit() && player.getData('fiskheroes:flight_boost_timer') == 1 && other_player.getEntity().as('PLAYER').getData('fiskheroes:flight_boost_timer') == 1 && other_player.hasDamageType('COLLISION')"
+      }
+    }
+  }
+}
