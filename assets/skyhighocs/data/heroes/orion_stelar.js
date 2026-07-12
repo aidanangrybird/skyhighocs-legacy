@@ -1,6 +1,6 @@
 var bodyTemp = implement("skyhighocs:external/body_temperature");
 var stelar = implement("skyhighocs:external/stelar");
-var uuid = "a3d071d4-c912-41e1-a6b2-c0de99ea4a84";
+var uuid = "97f987c5-d983-4274-bbfa-26bdfa780562";
 var transer = implement("skyhighocs:external/transer_system");
 var settings = implement("skyhighocs:external/transer_settings");
 var messaging = implement("skyhighocs:external/messaging");

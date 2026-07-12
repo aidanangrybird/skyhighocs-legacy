@@ -1,5 +1,5 @@
 var chakraSuit = implement("skyhighocs:external/chakra_suit");
-var uuid = "a3d071d4-c912-41e1-a6b2-c0de99ea4a84";
+var uuid = "97f987c5-d983-4274-bbfa-26bdfa780562";
 function init(hero) {
   chakraSuit.initChakras(hero, "Orion the Invincible", uuid);
 };

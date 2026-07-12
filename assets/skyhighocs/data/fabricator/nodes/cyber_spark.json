@@ -15,7 +15,7 @@
           "player": "PLAYER_KILLED",
           "damage": "DAMAGE_SOURCE"
         },
-        "check": "(player.getUUID() == 'a3d071d4-c912-41e1-a6b2-c0de99ea4a84') && player.isBurning() && damage.isFireDamage()"
+        "check": "(player.getUUID() == '97f987c5-d983-4274-bbfa-26bdfa780562') && player.isBurning() && damage.isFireDamage()"
       }
     }
   }

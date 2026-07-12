@@ -45,7 +45,7 @@ function initModule(system) {
     name: "ecolyte",
     type: 8,
     emBeing: "Ecolyte",
-    compatibleHumanUUID: "a3d071d4-c912-41e1-a6b2-c0de99ea4a84",
+    compatibleHumanUUID: "97f987c5-d983-4274-bbfa-26bdfa780562",
     powers: [
       "skyhighocs:ecolyte",
       "skyhighocs:em_wave_change",

@@ -8,7 +8,7 @@ function initModule(system) {
     name: "ecolyteSpark",
     type: 9,
     waveChange: "Ecolyte Spark",
-    color: "\u00A76",
+    color: "\u00A73",
     human: "Orion Stelar",
     powers: [
       "skyhighocs:em_wave_being",
@@ -239,7 +239,7 @@ function initModule(system) {
         if (entity.getData("skyhighocs:dyn/battle_card") == 1) {
           entity.playSound("skyhighocs:wave.equip", 1, 1);
           if (entity.getData("skyhighocs:dyn/predation_timer") > 0.65) {
-            system.shoutMessage(entity, "\u00A7r<\u00A73Ecolyte Spark\u00A7r> Battle Card Predation! \u00A76Electrostatic Dome\u00A7r!", 16);
+            system.shoutMessage(entity, "\u00A7r<\u00A73Ecolyte Spark\u00A7r> Battle Card Predation! \u00A73Electrostatic Dome\u00A7r!", 16);
             system.systemMessage(entity, "<n>Inserted <nh>Electrostatic Dome<n> battle card!");
           };
           manager.setData(entity, "skyhighocs:dyn/ecolyte", false);
@@ -248,7 +248,7 @@ function initModule(system) {
         if (entity.getData("skyhighocs:dyn/battle_card") == 2) {
           entity.playSound("skyhighocs:wave.equip", 1, 1);
           if (entity.getData("skyhighocs:dyn/predation_timer") > 0.65) {
-            system.shoutMessage(entity, "\u00A7r<\u00A73Ecolyte Spark\u00A7r> Battle Card Predation! \u00A76Taser\u00A7r!", 16);
+            system.shoutMessage(entity, "\u00A7r<\u00A73Ecolyte Spark\u00A7r> Battle Card Predation! \u00A73Taser\u00A7r!", 16);
             system.systemMessage(entity, "<n>Inserted <nh>Taser<n> battle card!");
           };
           manager.setData(entity, "skyhighocs:dyn/ecolyte", true);
@@ -258,7 +258,7 @@ function initModule(system) {
         if (entity.getData("skyhighocs:dyn/battle_card") == 3) {
           entity.playSound("skyhighocs:wave.equip", 1, 1);
           if (entity.getData("skyhighocs:dyn/predation_timer") > 0.65) {
-            system.shoutMessage(entity, "\u00A7r<\u00A73Ecolyte Spark\u00A7r> Battle Card Predation! \u00A76Shock\u00A7r!", 16);
+            system.shoutMessage(entity, "\u00A7r<\u00A73Ecolyte Spark\u00A7r> Battle Card Predation! \u00A73Shock\u00A7r!", 16);
             system.systemMessage(entity, "<n>Inserted <nh>Shock<n> battle card!");
           };
           manager.setData(entity, "skyhighocs:dyn/ecolyte", true);
@@ -266,7 +266,7 @@ function initModule(system) {
         if (entity.getData("skyhighocs:dyn/battle_card") == 4) {
           entity.playSound("skyhighocs:wave.equip", 1, 1);
           if (entity.getData("skyhighocs:dyn/predation_timer") > 0.65) {  
-            system.shoutMessage(entity, "\u00A7r<\u00A73Ecolyte Spark\u00A7r> Battle Card Predation! \u00A76Arc\u00A7r!", 16);
+            system.shoutMessage(entity, "\u00A7r<\u00A73Ecolyte Spark\u00A7r> Battle Card Predation! \u00A73Arc\u00A7r!", 16);
             system.systemMessage(entity, "<n>Inserted <nh>Arc<n> battle card!");
           };
           manager.setData(entity, "skyhighocs:dyn/ecolyte", true);
@@ -274,7 +274,7 @@ function initModule(system) {
         if (entity.getData("skyhighocs:dyn/battle_card") == 5) {
           entity.playSound("skyhighocs:wave.equip", 1, 1);
           if (entity.getData("skyhighocs:dyn/predation_timer") > 0.65) {
-            system.shoutMessage(entity, "\u00A7r<\u00A73Ecolyte Spark\u00A7r> Battle Card Predation! \u00A76Hail Cannon\u00A7r!", 16);
+            system.shoutMessage(entity, "\u00A7r<\u00A73Ecolyte Spark\u00A7r> Battle Card Predation! \u00A73Hail Cannon\u00A7r!", 16);
             system.systemMessage(entity, "<n>Inserted <nh>Hail Cannon<n> battle card!");
           };
           manager.setData(entity, "skyhighocs:dyn/ecolyte", true);
