@@ -2,8 +2,8 @@
     "items": {
         "fiskheroes:tutridium_gem": 15,
         "minecraft:stained_glass_pane@9": 1,
-        "minecraft:wool@14": 4,
-        "minecraft:wool@9": 2,
+        "minecraft:wool@9": 4,
+        "minecraft:wool@15": 2,
         "minecraft:wool@0": 1
     }
 }
