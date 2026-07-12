@@ -265,7 +265,7 @@ function getAssignedSatellite(entity) {
 function canUseTranser(entity) {
   var variable = entity.getData("skyhighocs:dyn/em_being_variable");
   if (variable != null) {
-    return ((entity.getData("skyhighocs:dyn/wave_changing_timer") == 0) ? true : entity.getDataOrDefault("skyhighocs:dyn/" + variable + "_timer", 0.0) == 1);
+    return ((entity.getData("skyhighocs:dyn/wave_changing_timer") == 0) ? true : ((entity.getDataOrDefault("skyhighocs:dyn/" + variable + "_timer", 0.0) == 1) && (entity.getDataOrDefault("skyhighocs:dyn/battle_card", 0) == 0)));
   } else {
     return true;
   };
