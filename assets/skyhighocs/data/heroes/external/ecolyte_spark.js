@@ -274,8 +274,8 @@ function initModule(system) {
         if (entity.getData("skyhighocs:dyn/battle_card") == 5) {
           entity.playSound("skyhighocs:wave.equip", 1, 1);
           if (entity.getData("skyhighocs:dyn/predation_timer") > 0.65) {
-            system.shoutMessage(entity, "\u00A7r<\u00A73Ecolyte Spark\u00A7r> Battle Card Predation! \u00A73Hail Cannon\u00A7r!", 16);
-            system.systemMessage(entity, "<n>Inserted <nh>Hail Cannon<n> battle card!");
+            system.shoutMessage(entity, "\u00A7r<\u00A73Ecolyte Spark\u00A7r> Battle Card Predation! \u00A73Over Charge\u00A7r!", 16);
+            system.systemMessage(entity, "<n>Inserted <nh>Over Charge<n> battle card!");
           };
           manager.setData(entity, "skyhighocs:dyn/ecolyte", true);
         };
