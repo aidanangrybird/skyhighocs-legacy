@@ -51,7 +51,7 @@ function init(hero) {
     if (entity.getData("skyhighocs:dyn/wave_changing_timer") == 1) {
       return transerOS.getAttributeProfile(entity);
     } else {
-      if (entity.getData("skyhighocs:dyn/calling_timer") == 0) {
+      if (entity.getData("skyhighocs:dyn/wave_calling_timer") == 0) {
         return bodyTemp.getAttributeProfile(entity); 
       } else {
         return transerOS.getWaveProfile(entity);
@@ -73,6 +73,9 @@ function init(hero) {
     };
     if (keyBind == "HOOD_TOGGLE") {
       return !entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/wave_changing_timer") == 0 && entity.getUUID() == transer.getCompatibleUUID(entity) && entity.isSneaking() && entity.getData("skyhighocs:dyn/stelar_clothes") == 3;
+    };
+    if (keyBind == "WAVE_CALLING") {
+      return !entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/wave_changing_timer") == 0 && entity.getUUID() == transer.getCompatibleUUID(entity) && entity.as("PLAYER").isCreativeMode() && transer.getEMBeing(entity) == "";
     };
     if (keyBind == "SHAPE_SHIFT") {
       return entity.getData("skyhighocs:dyn/transer") && entity.getData("skyhighocs:dyn/battle_card") == 0 && transer.canUseTranser(entity) && (!transerOS.isTelekinesisButton(entity) || (transerOS.isTelekinesisButton(entity) && !entity.getData("skyhighocs:dyn/entering_value")));

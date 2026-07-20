@@ -381,7 +381,7 @@ function init(renderer) {
         return "transer_default";
       };
       if (!hasEMBeing(entity)) {
-        if (entity.getInterpolatedData("skyhighocs:dyn/calling_timer") > 0.45 && entity.getInterpolatedData("skyhighocs:dyn/calling_timer") < 0.6) {
+        if (entity.getInterpolatedData("skyhighocs:dyn/wave_calling_timer") > 0.45 && entity.getInterpolatedData("skyhighocs:dyn/wave_calling_timer") < 0.6) {
           return "base";
         };
       };
@@ -414,7 +414,7 @@ function init(renderer) {
         };
       };
       if (!hasEMBeing(entity)) {
-        if (entity.getInterpolatedData("skyhighocs:dyn/calling_timer") > 0.45 && entity.getInterpolatedData("skyhighocs:dyn/calling_timer") < 0.6) {
+        if (entity.getInterpolatedData("skyhighocs:dyn/wave_calling_timer") > 0.45 && entity.getInterpolatedData("skyhighocs:dyn/wave_calling_timer") < 0.6) {
           return "lights";
         };
       };
@@ -736,7 +736,7 @@ function initEffects(renderer) {
   callingForcefield.setShape(36, 36).setOffset(0.0, 26.0, 0.0).setScale(0.1);
   callingForcefield.color.set(color);
   callingForcefield.setCondition(entity => {
-    return !entity.is("DISPLAY") && !hasEMBeing(entity) && entity.getData("skyhighocs:dyn/calling") && (entity.getInterpolatedData("skyhighocs:dyn/wave_changing_timer") == 0);
+    return !entity.is("DISPLAY") && !hasEMBeing(entity) && entity.getData("skyhighocs:dyn/wave_calling") && (entity.getInterpolatedData("skyhighocs:dyn/wave_changing_timer") == 0);
   });
   barrierForcefield = renderer.bindProperty("fiskheroes:forcefield");
   barrierForcefield.setShape(36, 36).setOffset(0.0, 10.0, 0.0).setScale(2.0);
@@ -754,7 +754,7 @@ function initEffects(renderer) {
 };
 
 function initAnimations(renderer) {
-  stuff.addAnimationWithData(renderer, "transer.CALLING", "skyhighocs:stelar_calling", "skyhighocs:dyn/calling_timer").setCondition(entity => {return entity.getData("skyhighocs:dyn/calling")});
+  stuff.addAnimationWithData(renderer, "transer.CALLING", "skyhighocs:stelar_calling", "skyhighocs:dyn/wave_calling_timer").setCondition(entity => {return entity.getData("skyhighocs:dyn/wave_calling")});
   stelar.initHoloFlightAnim(renderer, "wave.HOLOGRAM_FLIGHT", "skyhighocs:em_wave_change_holo_flight", getEMBeing());
   stelar.initEMWaveChangeAnimations(renderer);
 };
@@ -764,7 +764,7 @@ function render(entity, renderLayer, isFirstPersonArm) {
     if (entity.is("DISPLAY")) {
       visualizerModel.render();
     } else {
-      var callingTimer = entity.getInterpolatedData("skyhighocs:dyn/calling_timer");
+      var callingTimer = entity.getInterpolatedData("skyhighocs:dyn/wave_calling_timer");
       callingLine.size.x = callingLine.size.y = stuff.animate2(callingTimer, 0.7, 0.3, 0.1, 0.0)*40+20;
       callingLine.end.y = stuff.animate2(callingTimer, 0.85, 0.15, 0.1, 0.0)*302-300;
       callingLine.start.y = stuff.animate2(callingTimer, 0.55, 0.45, 0.05, 0.0)*302-300;
@@ -772,17 +772,17 @@ function render(entity, renderLayer, isFirstPersonArm) {
       var ffScale = stuff.animate2(callingTimer, 0.75, 0.25, 0.05, 0.0)*1 + stuff.animate2(callingTimer, 0.7, 0.3, 0.1, 0.0)*3;
       callingForcefield.setScale(ffScale);
       callingBeam.anchor.ignoreAnchor(isFirstPersonArm);
-      if (callingTimer > 0 && entity.getData("skyhighocs:dyn/calling") && callingTimer < 0.5) {
+      if (callingTimer > 0 && entity.getData("skyhighocs:dyn/wave_calling") && callingTimer < 0.5) {
         callingBeam.render();
       };
-      if (entity.getInterpolatedData("skyhighocs:dyn/calling_timer") > 0.45 && entity.getInterpolatedData("skyhighocs:dyn/calling_timer") < 0.6) {
+      if (entity.getInterpolatedData("skyhighocs:dyn/wave_calling_timer") > 0.45 && entity.getInterpolatedData("skyhighocs:dyn/wave_calling_timer") < 0.6) {
         callingHead.render();
       } else {
         visualizerModel.render();
       };
     };
     if (isChristmasSeason) {
-      if (entity.getInterpolatedData("skyhighocs:dyn/calling_timer") > 0.45 && entity.getInterpolatedData("skyhighocs:dyn/calling_timer") < 0.6) {
+      if (entity.getInterpolatedData("skyhighocs:dyn/wave_calling_timer") > 0.45 && entity.getInterpolatedData("skyhighocs:dyn/wave_calling_timer") < 0.6) {
         santaHatEM.render();
       } else {
         santaHat.setScale(1.05);

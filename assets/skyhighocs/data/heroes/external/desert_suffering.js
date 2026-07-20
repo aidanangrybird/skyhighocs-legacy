@@ -20,21 +20,21 @@ function initModule(system) {
     waveCalling: function (entity, manager) {
       if (entity.getUUID() == system.getCompatibleUUID(entity) && entity.world().isUnobstructed(entity.eyePos(), entity.eyePos().add(0,1000,0)) && !entity.world().isRaining() && !entity.world().isThundering() && entity.world().isDaytime() && entity.world().getLocation(entity.pos()).biome().startsWith("Desert")) {
         var value = Math.random();
-        manager.setDataWithNotify(entity, "skyhighocs:dyn/calling_value", value);
-        if (entity.getData("skyhighocs:dyn/calling_value") < 0.05) {
-          manager.setDataWithNotify(entity, "skyhighocs:dyn/calling", true);
+        manager.setDataWithNotify(entity, "skyhighocs:dyn/wave_calling_value", value);
+        if (entity.getData("skyhighocs:dyn/wave_calling_value") < 0.05) {
+          manager.setDataWithNotify(entity, "skyhighocs:dyn/wave_calling", true);
         };
       };
-      if (entity.getData("skyhighocs:dyn/calling_timer") == 1) {
+      if (entity.getData("skyhighocs:dyn/wave_calling_timer") == 1) {
         manager.setString(entity.getWornChestplate().nbt(), "emBeing", "Solar");
         manager.setDataWithNotify(entity, "skyhighocs:dyn/em_being", "Solar");
         manager.setDataWithNotify(entity, "skyhighocs:dyn/em_being_variable", system.formatEMBeing(entity.getData("skyhighocs:dyn/em_being")));
-        manager.setDataWithNotify(entity, "skyhighocs:dyn/calling", false);
-        manager.setDataWithNotify(entity, "skyhighocs:dyn/calling_timer", 0.0);
+        manager.setDataWithNotify(entity, "skyhighocs:dyn/wave_calling", false);
+        manager.setDataWithNotify(entity, "skyhighocs:dyn/wave_calling_timer", 0.0);
       };
     },
     waveHandler: function (entity, hero) {
-      if (entity.getData("skyhighocs:dyn/calling_timer") > 0.3 && entity.getData("skyhighocs:dyn/calling_timer") < 0.7) {
+      if (entity.getData("skyhighocs:dyn/wave_calling_timer") > 0.3 && entity.getData("skyhighocs:dyn/wave_calling_timer") < 0.7) {
         var nearbyPlayers = entity.world().getEntitiesInRangeOf(entity.pos(), 10);
         nearbyPlayers.forEach(other => {
           if (other.getName() != entity.getName()) {
@@ -42,7 +42,7 @@ function initModule(system) {
           };
         });
       };
-      if (entity.getData("skyhighocs:dyn/calling_timer") > 0.425 && entity.getData("skyhighocs:dyn/calling_timer") < 0.475) {
+      if (entity.getData("skyhighocs:dyn/wave_calling_timer") > 0.425 && entity.getData("skyhighocs:dyn/wave_calling_timer") < 0.475) {
         entity.hurt(hero, "SELF", "%1$s could not handle wave changing", 1.0);
       };
     }
