@@ -2,7 +2,7 @@ function initModule(system) {
   return {
     name: "Death by snow",
     type: 7,
-    human: "Chase Stelar",
+    human: "Casp Stelar",
     selfProfile: function (hero) {
       hero.addDamageProfile("SELF", {
         "types": {

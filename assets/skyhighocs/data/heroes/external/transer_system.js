@@ -165,7 +165,7 @@ var hexColors = {
   "Ace Stelar": "0xFF0000",
   "Aidan Stelar": "0xFF8900",
   "Cade Stelar": "0x0000FF",
-  "Chase Stelar": "0x55FF00",
+  "Casp Stelar": "0x55FF00",
   "Damien Stelar": "0x8000FF",
   "Orion Stelar": "0x00FFFF"
 };

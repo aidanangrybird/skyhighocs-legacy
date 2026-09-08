@@ -9,10 +9,10 @@ function initModule(system) {
     type: 9,
     waveChange: "Pryetak Nebula",
     color: "\u00A72",
-    human: "Chase Stelar",
+    human: "Casp Stelar",
     powers: [
       "skyhighocs:em_wave_being",
-      "skyhighocs:battle_cards_chase",
+      "skyhighocs:battle_cards_casp",
     ],
     keyBinds: function (hero) {
       hero.addKeyBind("TELEPORT", "Transmit", 1);

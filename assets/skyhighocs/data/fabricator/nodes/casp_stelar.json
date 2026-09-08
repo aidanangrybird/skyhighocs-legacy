@@ -1,0 +1,26 @@
+{
+  "suit": "skyhighocs:casp_stelar",
+  "display": {
+    "description": {
+      "translate": "EM Wave Change! Casp Stelar, On-Air!"
+    }
+  },
+  "requirements": [
+    "skyhighocs:transers",
+    "fiskheroes:tier1"
+  ],
+  "criteria": {
+    "exist": {
+      "trigger": "fiskheroes:tick",
+      "description": {
+        "translate": "Exist as StarrySynth"
+      },
+      "condition": {
+        "variables": {
+          "player": "PLAYER_TICKING"
+        },
+        "check": "player.getUUID() == '4da600b8-582a-4fc3-ac2e-ada03d3e478c'"
+      }
+    }
+  }
+}

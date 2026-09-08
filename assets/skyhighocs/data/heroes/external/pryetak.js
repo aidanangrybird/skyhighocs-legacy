@@ -74,7 +74,7 @@ function initModule(system) {
       }, "Pulse Out", 5);
       hero.addKeyBindFunc("PULSE_IN", (player, manager) => {
         if (player.getUUID() == system.getCompatibleUUID(player)) {
-          system.shoutMessage(player, "<Chase Stelar> EM Wave Change! \u00A72Chase Stelar\u00A7r, On-Air!", 16);
+          system.shoutMessage(player, "<Casp Stelar> EM Wave Change! \u00A72Casp Stelar\u00A7r, On-Air!", 16);
           manager.setData(player, "skyhighocs:dyn/battle_card", 0);
           manager.setData(player, "skyhighocs:dyn/selected_battle_card", 0);
           manager.setData(player, "skyhighocs:dyn/body_temperature", 0.0);
